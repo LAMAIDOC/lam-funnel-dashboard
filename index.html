@@ -82,6 +82,9 @@ body{margin:0;background:var(--color-bg);color:var(--color-fg);font-family:var(-
 #lf-target-table th:nth-child(n+4), #lf-target-table td:nth-child(n+4) { text-align: left; }
 .lf-kpis-sm { margin-bottom: var(--cds-gap-md); }
 .lf-kpis-sm .lf-kpi { padding: 0; }
+.lf-adlinks { font-size: var(--cds-font-size-caption); margin-top: 2px; }
+.lf-adlink { color: inherit; text-decoration: underline; text-decoration-color: var(--color-border-line); text-underline-offset: 3px; }
+.lf-adlink:hover { text-decoration-color: currentColor; }
 .lf-gap { margin-top: var(--cds-gap-md); margin-bottom: 0; }
 .lf-two { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: var(--cds-gap-lg); }
 </style>
@@ -126,7 +129,6 @@ body{margin:0;background:var(--color-bg);color:var(--color-fg);font-family:var(-
 <div class="lf">
   <header class="lf-head" id="lf-header">
     <h1>Download to Dollar</h1>
-    <p class="lf-take" id="lf-takeaway">In this period, Meta ads brought <b data-source="by_source" data-field="install_share" data-where="source=Meta ads" data-draw="t-share">—</b> of downloads and <b data-source="by_source" data-field="paid" data-where="source=Meta ads" data-draw="t-metapaid">—</b> of the <b data-source="kpis" data-field="paid" data-row="0" data-draw="t-paid">—</b> paying customers, at <b data-source="kpis" data-field="cost_per_paid_cad" data-row="0" data-draw="t-cpp">—</b> CAD of ad spend per paying customer.</p>
   </header>
 
   <div class="lf-controls" id="lf-range" data-draw="range"></div>
@@ -217,7 +219,7 @@ body{margin:0;background:var(--color-bg);color:var(--color-fg);font-family:var(-
       <button type="button" class="lf-btn" id="lf-ads-show" hidden>Show section</button>
     </div>
     <div id="lf-ads-body">
-    <p class="lf-note">Pick a level and, if you like, one campaign. Sorted by spend until you click a column title. A few downloads that AppsFlyer couldn’t tie to an ad are left out, so totals here can sit slightly below the Meta row above.</p>
+    <p class="lf-note">Pick a level and, if you like, one campaign. At the Ad level, each ad has links to its Instagram and Facebook post, which open for anyone, no login needed. Sorted by spend until you click a column title. A few downloads that AppsFlyer couldn’t tie to an ad are left out, so totals here can sit slightly below the Meta row above.</p>
     <div class="lf-controls lf-adcontrols" id="lf-ad-controls">
       <label class="lf-dash" for="lf-ad-level">Show by</label>
       <select class="dash-select" id="lf-ad-level" aria-label="Show by" data-draw="ad-level"></select>
@@ -391,6 +393,8 @@ dash.calc('by_ad', {
         key,
         name: level === 'campaign' ? f.campaign : level === 'adset' ? f.adset : f.ad,
         parent: level === 'campaign' ? '' : level === 'adset' ? f.campaign : f.adset + ' · ' + f.campaign,
+        ig: level === 'ad' ? (f.ig || '') : '',
+        fb: level === 'ad' ? (f.fb || '') : '',
         installs, trials, paid,
         revenue_usd: Math.round(s('revenue_usd') * 100) / 100,
         spend_cad,
@@ -475,11 +479,6 @@ dash.calc('daily_chart', {
   const row0 = (id) => { const d = dash.data(id); return d.status === 'ok' && d.data && d.data[0] ? d.data[0] : null; };
   const bySource = (name) => { const d = dash.data('by_source'); return d.status === 'ok' ? (d.data || []).find((r) => r.source === name) : null; };
   const put = (el, v) => { el.textContent = v == null ? '—' : v; };
-
-  dash.draw('t-share', (el) => { const m = bySource('Meta ads'); put(el, m ? F.pct(m.install_share) : null); });
-  dash.draw('t-metapaid', (el) => { const m = bySource('Meta ads'); put(el, m ? F.n(m.paid) : null); });
-  dash.draw('t-paid', (el) => { const k = row0('kpis'); put(el, k ? F.n(k.paid) : null); });
-  dash.draw('t-cpp', (el) => { const k = row0('kpis'); put(el, k ? F.cad0(k.cost_per_paid_cad) : null); });
   dash.draw('k-installs', (el) => { const k = row0('kpis'); put(el, k ? F.n(k.installs) : null); });
   dash.draw('k-trials', (el) => { const k = row0('kpis'); put(el, k ? F.n(k.trials) : null); });
   dash.draw('k-i2t', (el) => { const k = row0('kpis'); put(el, k ? F.pct(k.install_to_trial) : null); });
@@ -628,6 +627,16 @@ dash.calc('daily_chart', {
       const td = cell(tr, '');
       const nm = document.createElement('div'); nm.textContent = r.name;
       td.appendChild(nm);
+      const links = [['Instagram', r.ig, /^https:\/\/www\.instagram\.com\//], ['Facebook', r.fb, /^https:\/\/www\.facebook\.com\//]].filter(([, u, re]) => u && re.test(u));
+      if (links.length) {
+        const lk = document.createElement('div'); lk.className = 'lf-adlinks';
+        links.forEach(([label, u], i) => {
+          if (i) lk.appendChild(document.createTextNode(' · '));
+          const a = document.createElement('a'); a.href = u; a.target = '_blank'; a.rel = 'noopener noreferrer'; a.className = 'lf-adlink'; a.textContent = label + ' ↗';
+          lk.appendChild(a);
+        });
+        td.appendChild(lk);
+      }
       if (r.parent) { const pa = document.createElement('div'); pa.className = 'lf-dash'; pa.textContent = r.parent; td.appendChild(pa); }
       td.style.whiteSpace = 'normal'; td.style.minWidth = '180px';
       [F.n(r.installs), F.n(r.trials), F.pct(r.install_to_trial), F.n(r.paid), F.usd(r.revenue_usd), F.cad(r.spend_cad), F.cad(r.cost_per_install_cad), F.cad(r.cost_per_trial_cad), F.cad(r.cost_per_paid_cad)]
@@ -796,7 +805,7 @@ dash.calc('daily_chart', {
   function show(d) {
     const daily = d.daily.map(([date, s, installs, trials, paid, revenue_usd, spend_cad]) => ({date, source: d.sources[s], installs, trials, paid, revenue_usd, spend_cad}));
     const paywall = d.paywall.map(([date, paywall_users, first_opens, paywall_new]) => ({date, paywall_users, first_opens, paywall_new}));
-    const ads = d.ads.rows.map(([date, a, installs, trials, paid, revenue_usd, spend_cad]) => { const [ad_id, ad, adset, campaign] = d.ads.list[a]; return {date, ad_id, ad, adset, campaign, installs, trials, paid, revenue_usd, spend_cad}; });
+    const ads = d.ads.rows.map(([date, a, installs, trials, paid, revenue_usd, spend_cad]) => { const [ad_id, ad, adset, campaign, ig, fb] = d.ads.list[a]; return {date, ad_id, ad, adset, campaign, ig, fb, installs, trials, paid, revenue_usd, spend_cad}; });
     document.getElementById('lf-lock').hidden = true;
     document.getElementById('lf-main').hidden = false;
     document.getElementById('lf-updated').textContent = 'Data updated ' + new Date(d.updated).toLocaleString(undefined, {dateStyle: 'medium', timeStyle: 'short'}) + '. Refreshes about every 6 hours.';
