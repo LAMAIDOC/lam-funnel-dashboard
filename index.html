@@ -500,7 +500,8 @@ dash.calc('compare', {
     const p = dash.params();
     const dates = daily.map((r) => r.date).sort();
     const def = window.lfCmpDefault(dates);
-    const rng = {a: [p.a_from || def.a_from, p.a_to || def.a_to], b: [p.b_from || def.b_from, p.b_to || def.b_to]};
+    const ord = (x, y) => x <= y ? [x, y] : [y, x];
+    const rng = {a: ord(p.a_from || def.a_from, p.a_to || def.a_to), b: ord(p.b_from || def.b_from, p.b_to || def.b_to)};
     const tot = (k) => {
       const [f, t] = rng[k];
       const d = daily.filter((r) => r.date >= f && r.date <= t);
@@ -819,7 +820,7 @@ dash.calc('daily_chart', {
         pill.className = 'lf-status ' + (r.verdict === 'better' ? 'lf-status-on' : r.verdict === 'worse' ? 'lf-status-below' : 'lf-status-flat');
         pill.textContent = r.verdict === 'better' ? 'Better' : r.verdict === 'worse' ? 'Worse' : 'Too early to tell';
         v.appendChild(pill);
-      } else { v.textContent = r.kind === 'n' ? '' : 'Not tested'; v.className = 'lf-dash'; }
+      } else { v.textContent = r.kind === 'n' ? '' : (r.a == null || r.b == null) ? 'No data' : r.kind === 'pct' ? 'Too early to tell' : 'Not tested'; v.className = 'lf-dash'; }
       tb.appendChild(tr);
     });
   });
