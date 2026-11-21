@@ -85,6 +85,11 @@ body{margin:0;background:var(--color-bg);color:var(--color-fg);font-family:var(-
 .lf-adlinks { font-size: var(--cds-font-size-caption); margin-top: 2px; }
 .lf-adlink { color: inherit; text-decoration: underline; text-decoration-color: var(--color-border-line); text-underline-offset: 3px; }
 .lf-adlink:hover { text-decoration-color: currentColor; }
+.lf-cmp-ranges { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: var(--cds-gap-sm) var(--cds-gap-lg); margin-bottom: var(--cds-gap-md); }
+.lf-cmp-range { display: flex; flex-wrap: wrap; gap: var(--cds-gap-xs) var(--cds-gap-sm); align-items: center; }
+.lf-cmp-range b { font-size: var(--cds-font-size-caption); font-weight: var(--cds-font-weight-medium); min-width: 64px; }
+.lf-status-flat { background: color-mix(in srgb, var(--color-fg-muted) 14%, transparent); color: var(--color-fg-muted); }
+#lf-cmp-table th:last-child, #lf-cmp-table td:last-child { text-align: left; }
 .lf-gap { margin-top: var(--cds-gap-md); margin-bottom: 0; }
 .lf-two { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: var(--cds-gap-lg); }
 </style>
@@ -160,6 +165,25 @@ body{margin:0;background:var(--color-bg);color:var(--color-fg);font-family:var(-
     </div>
     <p class="lf-note lf-gap">Industry figures: RevenueCat, State of Subscription Apps 2026 (2025 data), Health &amp; Fitness category, which includes Medical apps.</p>
     <p class="lf-note lf-gap">Not measured yet: App Store page view → install (target 25–30%) needs App Store Connect data, and influencer views → downloads (target 5 per 1,000 views) needs view counts from the creators’ posts.</p>
+  </section>
+
+  <section class="lf-card" id="lf-compare-card">
+    <h2>Compare two periods</h2>
+    <p class="lf-note">Use this to check a paywall or price change: put the dates before the change in A and after it in B. “Better” or “Worse” only shows when the gap is too big to be chance (95% confidence); otherwise it says “Too early to tell”. Trial → paid needs about 7 days after a trial starts, so leave the last week out of B when judging it.</p>
+    <div class="lf-cmp-ranges" data-draw="cmp-range"></div>
+    <div class="lf-tablewrap">
+      <table class="lf-table" id="lf-cmp-table" data-source="compare" data-row-key="metric">
+        <thead><tr>
+          <th data-field="metric">Metric</th>
+          <th data-field="a">A</th>
+          <th data-field="b">B</th>
+          <th data-field="change">Change</th>
+          <th data-field="verdict">Result</th>
+        </tr></thead>
+        <tbody data-draw="cmp-rows"></tbody>
+      </table>
+    </div>
+    <p class="lf-note lf-gap">Later: once each paywall version runs as its own RevenueCat offering, this can compare versions shown at the same time, which is more reliable than before vs after.</p>
   </section>
 
   <section class="lf-card" id="lf-plans-card">
@@ -262,6 +286,7 @@ body{margin:0;background:var(--color-bg);color:var(--color-fg);font-family:var(-
       <li>Because the two tools can date the same purchase a day apart, Organic on a single day can look off. It evens out over a week or more.</li>
       <li>Paid means a first payment: a trial that converted or a direct purchase. Renewals aren’t counted. Promo (free) accounts are left out.</li>
       <li>Trial → paid compares people who paid in the period with people who started a trial in it. Trials take 7 days to convert, so recent trials haven’t had the chance yet.</li>
+      <li>“Organic / untracked” means the download came without a tracked ad or link: App Store search, our own social posts, influencers without a tracked link, word of mouth, and some team installs. It did not rise when Meta spend rose, so few Meta ad downloads are hiding in it.</li>
       <li>Meta spend is from Meta Ads Manager in CAD. Revenue is Apple’s gross in USD, before Apple’s cut.</li>
     </ul>
   </details>
@@ -269,6 +294,7 @@ body{margin:0;background:var(--color-bg);color:var(--color-fg);font-family:var(-
 
 <script>
 window.lfSources = ['Meta ads', 'Organic', 'Apple Search Ads', 'Ambassadors (Everflow)'];
+window.lfLabel = (s) => s === 'Organic' ? 'Organic / untracked' : s;
 window.lfColor = (s) => dash.colors[Math.max(0, window.lfSources.indexOf(s)) % dash.colors.length];
 window.lfSort = {};
 window.lfSorted = (tableId, rows) => {
@@ -459,6 +485,61 @@ dash.calc('cancel_kpis', {
   },
 });
 
+window.lfCmpDefault = (dates) => {
+  const max = dates[dates.length - 1], min = dates[0];
+  const shift = (d, n) => { const x = new Date(d + 'T00:00:00Z'); x.setUTCDate(x.getUTCDate() + n); return x.toISOString().slice(0, 10); };
+  const bFrom = shift(max, -13), aTo = shift(max, -14), aFrom = shift(max, -27);
+  return {a_from: aFrom < min ? min : aFrom, a_to: aTo, b_from: bFrom, b_to: max};
+};
+
+dash.calc('compare', {
+  title: 'Period A against period B',
+  description: 'Funnel rates for two date ranges side by side. Each rate is tested with a two-proportion z-test; a change counts as better or worse only at 95% confidence. Default: last 14 days (B) against the 14 days before (A).',
+  inputs: ['daily', 'paywall'],
+  fn: (daily, paywall) => {
+    const p = dash.params();
+    const dates = daily.map((r) => r.date).sort();
+    const def = window.lfCmpDefault(dates);
+    const rng = {a: [p.a_from || def.a_from, p.a_to || def.a_to], b: [p.b_from || def.b_from, p.b_to || def.b_to]};
+    const tot = (k) => {
+      const [f, t] = rng[k];
+      const d = daily.filter((r) => r.date >= f && r.date <= t);
+      const pw = paywall.filter((r) => r.date >= f && r.date <= t);
+      const s = (rows, x) => rows.reduce((a, r) => a + (Number(r[x]) || 0), 0);
+      const meta = d.filter((r) => r.source === 'Meta ads');
+      return {
+        installs: s(d, 'installs'), trials: Math.max(0, s(d, 'trials')), paid: Math.max(0, s(d, 'paid')),
+        revenue: Math.max(0, s(d, 'revenue_usd')), opens: s(pw, 'first_opens'), pw: s(pw, 'paywall_new'),
+        spend: s(meta, 'spend_cad'), metaTrials: Math.max(0, s(meta, 'trials')),
+      };
+    };
+    const A = tot('a'), B = tot('b');
+    const rate = (n, d) => d ? n / d : null;
+    const z = (n1, d1, n2, d2) => {
+      if (!d1 || !d2) return null;
+      const pp = (n1 + n2) / (d1 + d2);
+      const se = Math.sqrt(pp * (1 - pp) * (1 / d1 + 1 / d2));
+      return se ? (n2 / d2 - n1 / d1) / se : null;
+    };
+    const rows = [
+      {metric: 'Downloads', kind: 'n', a: A.installs, b: B.installs},
+      {metric: 'Download → paywall', kind: 'pct', a: rate(A.pw, A.opens), b: rate(B.pw, B.opens), z: z(A.pw, A.opens, B.pw, B.opens)},
+      {metric: 'Paywall → trial', kind: 'pct', a: rate(A.trials, A.pw), b: rate(B.trials, B.pw), z: z(A.trials, A.pw, B.trials, B.pw)},
+      {metric: 'Download → trial', kind: 'pct', a: rate(A.trials, A.installs), b: rate(B.trials, B.installs), z: z(A.trials, A.installs, B.trials, B.installs)},
+      {metric: 'Trial → paid', kind: 'pct', a: rate(A.paid, A.trials), b: rate(B.paid, B.trials), z: z(A.paid, A.trials, B.paid, B.trials)},
+      {metric: 'Download → paid', kind: 'pct', a: rate(A.paid, A.installs), b: rate(B.paid, B.installs), z: z(A.paid, A.installs, B.paid, B.installs)},
+      {metric: 'Revenue per download (USD)', kind: 'usd', a: rate(A.revenue, A.installs), b: rate(B.revenue, B.installs)},
+      {metric: 'Meta cost per trial (CAD)', kind: 'cad', lowerBetter: true, a: rate(A.spend, A.metaTrials), b: rate(B.spend, B.metaTrials)},
+    ];
+    return rows.map((r) => {
+      const change = r.a != null && r.b != null ? (r.kind === 'pct' ? r.b - r.a : (r.a ? (r.b - r.a) / r.a : null)) : null;
+      let verdict = null;
+      if (r.z != null) verdict = Math.abs(r.z) < 1.96 ? 'too early' : r.z > 0 ? 'better' : 'worse';
+      return {...r, change, verdict, a_from: rng.a[0], a_to: rng.a[1], b_from: rng.b[0], b_to: rng.b[1]};
+    });
+  },
+});
+
 dash.calc('daily_chart', {
   title: 'Daily downloads by source',
   description: 'One row per day and source in the date range, for the chart.',
@@ -568,8 +649,9 @@ dash.calc('daily_chart', {
         lab.appendChild(c);
       }
       const barPx = pct * Math.max(0, w - 150);
-      const inside = barPx > 170;
+      const inside = barPx > 170 || pct > 0.6;
       lab.style.left = inside ? '10px' : `calc(${pct * 100}% + 8px)`;
+      if (!inside) { lab.style.right = '0'; lab.style.flexWrap = 'wrap'; lab.style.whiteSpace = 'normal'; lab.style.rowGap = '0'; lab.style.lineHeight = '1.15'; lab.style.alignContent = 'center'; }
       if (inside) { lab.style.color = 'var(--color-bg)'; lab.querySelectorAll('.lf-fconv').forEach((s) => { s.style.color = 'var(--color-bg)'; s.style.opacity = '0.85'; }); }
       wrap.append(bar, lab);
       row.append(name, wrap);
@@ -587,7 +669,7 @@ dash.calc('daily_chart', {
       const tr = document.createElement('tr');
       const td = cell(tr, '');
       const sw = document.createElement('span'); sw.className = 'lf-swatch'; sw.style.background = window.lfColor(r.source);
-      td.append(sw, document.createTextNode(r.source));
+      td.append(sw, document.createTextNode(window.lfLabel(r.source)));
       const paid = r.spend_cad != null;
       [F.n(r.installs), F.n(r.trials), F.pct(r.install_to_trial), F.n(r.paid), F.pct(r.trial_to_paid), F.usd(r.revenue_usd),
        paid ? F.cad(r.spend_cad) : 'not connected', paid ? F.cad(r.cost_per_install_cad) : '—', paid ? F.cad(r.cost_per_trial_cad) : '—', paid ? F.cad(r.cost_per_paid_cad) : '—']
@@ -683,11 +765,70 @@ dash.calc('daily_chart', {
     tb.appendChild(tr);
   });
 
+  dash.draw('cmp-range', {
+    mount: (el) => {
+      const mk = (tag, attrs) => Object.assign(document.createElement(tag), attrs);
+      const out = {};
+      [['a', 'Period A'], ['b', 'Period B']].forEach(([k, label]) => {
+        const box = mk('div', {className: 'lf-cmp-range'});
+        const b = mk('b', {textContent: label});
+        const f = mk('input', {type: 'date', className: 'lf-date'}); f.setAttribute('aria-label', label + ' from');
+        const sep = mk('span', {className: 'lf-dash', textContent: 'to'});
+        const t = mk('input', {type: 'date', className: 'lf-date'}); t.setAttribute('aria-label', label + ' to');
+        box.append(b, f, sep, t); el.appendChild(box);
+        [[f, k + '_from'], [t, k + '_to']].forEach(([inp, key]) => inp.addEventListener('change', () => { if (inp.value && inp.validity.valid) dash.setParams({[key]: inp.value}); }));
+        out[k] = {f, t};
+      });
+      const reset = mk('button', {type: 'button', className: 'lf-btn', textContent: 'Last 14 days vs 14 before'});
+      reset.addEventListener('click', () => dash.setParams({a_from: null, a_to: null, b_from: null, b_to: null}));
+      const rb = mk('div', {className: 'lf-cmp-range'}); rb.appendChild(reset); el.appendChild(rb);
+      return out;
+    },
+    update: (el, m) => {
+      const d = dash.data('compare');
+      const dd = dash.data('daily');
+      if (d.status !== 'ok' || !d.data || !d.data[0] || dd.status !== 'ok') return;
+      const dates = dd.data.map((r) => r.date).sort();
+      const r = d.data[0];
+      const vals = {a: [r.a_from, r.a_to], b: [r.b_from, r.b_to]};
+      ['a', 'b'].forEach((k) => {
+        [[m[k].f, vals[k][0]], [m[k].t, vals[k][1]]].forEach(([inp, v]) => {
+          inp.min = dates[0]; inp.max = dates[dates.length - 1];
+          if (document.activeElement !== inp) inp.value = v;
+        });
+      });
+    },
+  });
+
+  dash.draw('cmp-rows', (tb) => {
+    const d = dash.data('compare');
+    tb.replaceChildren();
+    if (d.status !== 'ok' || !d.data) return;
+    const fmt = (kind, v) => v == null || !isFinite(v) ? '—' : kind === 'n' ? F.n(v) : kind === 'pct' ? F.pct(v) : kind === 'usd' ? F.usd(v) : F.cad(v);
+    const sign = (v) => (v > 0 ? '+' : v < 0 ? '−' : '') ;
+    d.data.forEach((r) => {
+      const tr = document.createElement('tr');
+      const add = (t) => { const td = document.createElement('td'); td.textContent = t; tr.appendChild(td); return td; };
+      add(r.metric);
+      add(fmt(r.kind, r.a));
+      const b = add(fmt(r.kind, r.b)); b.style.fontWeight = '600';
+      add(r.change == null || !isFinite(r.change) ? '—' : r.kind === 'pct' ? sign(r.change) + d3.format('.1f')(Math.abs(r.change) * 100) + ' pts' : sign(r.change) + d3.format('.0%')(Math.abs(r.change)));
+      const v = add('');
+      if (r.verdict) {
+        const pill = document.createElement('span');
+        pill.className = 'lf-status ' + (r.verdict === 'better' ? 'lf-status-on' : r.verdict === 'worse' ? 'lf-status-below' : 'lf-status-flat');
+        pill.textContent = r.verdict === 'better' ? 'Better' : r.verdict === 'worse' ? 'Worse' : 'Too early to tell';
+        v.appendChild(pill);
+      } else { v.textContent = r.kind === 'n' ? '' : 'Not tested'; v.className = 'lf-dash'; }
+      tb.appendChild(tr);
+    });
+  });
+
   dash.draw('legend', (el) => {
     el.replaceChildren(...window.lfSources.map((s) => {
       const span = document.createElement('span');
       const sw = document.createElement('span'); sw.className = 'lf-swatch'; sw.style.background = window.lfColor(s);
-      span.append(sw, document.createTextNode(s));
+      span.append(sw, document.createTextNode(window.lfLabel(s)));
       return span;
     }));
   });
@@ -728,7 +869,7 @@ dash.calc('daily_chart', {
       .attr('y', m.t).attr('height', H - m.b - m.t).attr('fill', 'transparent')
       .on('pointerenter pointermove', (event, o) => {
         const line = (k, v) => { const r = document.createElement('div'); const a = document.createElement('span'); a.textContent = k; const b = document.createElement('b'); b.textContent = v; r.append(a, b); return r; };
-        tip.replaceChildren(line(F.day(new Date(o.date + 'T00:00:00Z')), ''), ...srcs.filter((s) => o[s]).map((s) => line(s, F.n(o[s]))), line('Trials (all)', F.n(o.trials)), line('Meta spend', F.cad(o.spend)));
+        tip.replaceChildren(line(F.day(new Date(o.date + 'T00:00:00Z')), ''), ...srcs.filter((s) => o[s]).map((s) => line(window.lfLabel(s), F.n(o[s]))), line('Trials (all)', F.n(o.trials)), line('Meta spend', F.cad(o.spend)));
         tip.hidden = false;
         const [px, py] = d3.pointer(event, el);
         const tw = tip.offsetWidth;
