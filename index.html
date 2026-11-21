@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
-<title>LAM Funnel by Source</title>
+<title>Download to Dollar</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Source+Serif+4:wght@400&display=swap" rel="stylesheet">
 <style>
 :root{--color-fg:#1f1e1c;--color-fg-muted:#6b6862;--color-bg:#ffffff;--color-panel:#faf9f6;--color-border-line:#e6e3dc;
@@ -80,6 +80,8 @@ body{margin:0;background:var(--color-bg);color:var(--color-fg);font-family:var(-
 .lf-status-below { background: color-mix(in srgb, var(--color-bad) 18%, transparent); color: var(--color-bad); }
 .lf-table td.lf-wrap { white-space: normal; min-width: 180px; color: var(--color-fg-muted); }
 #lf-target-table th:nth-child(n+4), #lf-target-table td:nth-child(n+4) { text-align: left; }
+.lf-kpis-sm { margin-bottom: var(--cds-gap-md); }
+.lf-kpis-sm .lf-kpi { padding: 0; }
 .lf-gap { margin-top: var(--cds-gap-md); margin-bottom: 0; }
 .lf-two { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: var(--cds-gap-lg); }
 </style>
@@ -123,8 +125,7 @@ body{margin:0;background:var(--color-bg);color:var(--color-fg);font-family:var(-
 </head><body><main class="lf-page" id="lf-main" hidden>
 <div class="lf">
   <header class="lf-head" id="lf-header">
-    <h1>Download → paywall → trial → paid</h1>
-    <p class="lf-sub">Live payments only (Apple test purchases removed). Revenue in USD gross, ad spend in CAD. Refreshed about every 6 hours.</p>
+    <h1>Download to Dollar</h1>
     <p class="lf-take" id="lf-takeaway">In this period, Meta ads brought <b data-source="by_source" data-field="install_share" data-where="source=Meta ads" data-draw="t-share">—</b> of downloads and <b data-source="by_source" data-field="paid" data-where="source=Meta ads" data-draw="t-metapaid">—</b> of the <b data-source="kpis" data-field="paid" data-row="0" data-draw="t-paid">—</b> paying customers, at <b data-source="kpis" data-field="cost_per_paid_cad" data-row="0" data-draw="t-cpp">—</b> CAD of ad spend per paying customer.</p>
   </header>
 
@@ -133,7 +134,8 @@ body{margin:0;background:var(--color-bg);color:var(--color-fg);font-family:var(-
   <section class="lf-kpis" id="lf-kpis">
     <div class="lf-card lf-kpi" id="kpi-downloads"><div class="lf-label">Downloads</div><div class="lf-val" data-source="kpis" data-field="installs" data-row="0" data-draw="k-installs">—</div><div class="lf-hint">All sources</div></div>
     <div class="lf-card lf-kpi" id="kpi-trials"><div class="lf-label">Free trials started</div><div class="lf-val" data-source="kpis" data-field="trials" data-row="0" data-draw="k-trials">—</div><div class="lf-hint"><span data-source="kpis" data-field="install_to_trial" data-row="0" data-draw="k-i2t">—</span> of downloads</div></div>
-    <div class="lf-card lf-kpi" id="kpi-paid"><div class="lf-label">Paying customers</div><div class="lf-val" data-source="kpis" data-field="paid" data-row="0" data-draw="k-paid">—</div><div class="lf-hint"><span data-source="kpis" data-field="download_to_paid" data-row="0" data-draw="k-d2p">—</span> of downloads · <span data-source="kpis" data-field="revenue_usd" data-row="0" data-draw="k-rev">—</span> USD</div></div>
+    <div class="lf-card lf-kpi" id="kpi-paid"><div class="lf-label">Paying customers</div><div class="lf-val" data-source="kpis" data-field="paid" data-row="0" data-draw="k-paid">—</div><div class="lf-hint"><span data-source="kpis" data-field="download_to_paid" data-row="0" data-draw="k-d2p">—</span> of downloads</div></div>
+    <div class="lf-card lf-kpi" id="kpi-revenue"><div class="lf-label">Total revenue (USD)</div><div class="lf-val" data-source="kpis" data-field="revenue_usd" data-row="0" data-draw="k-rev">—</div><div class="lf-hint">First payments, gross, live only</div></div>
     <div class="lf-card lf-kpi" id="kpi-spend"><div class="lf-label">Meta ad spend (CAD)</div><div class="lf-val" data-source="kpis" data-field="spend_cad" data-row="0" data-draw="k-spend">—</div><div class="lf-hint">Only Meta spend is connected</div></div>
     <div class="lf-card lf-kpi" id="kpi-cpt"><div class="lf-label">Meta cost per trial (CAD)</div><div class="lf-val" data-source="kpis" data-field="cost_per_trial_cad" data-row="0" data-draw="k-cpt">—</div><div class="lf-hint">Spend ÷ Meta trials</div></div>
     <div class="lf-card lf-kpi" id="kpi-cpp"><div class="lf-label">Meta cost per paid (CAD)</div><div class="lf-val" data-source="kpis" data-field="cost_per_paid_cad" data-row="0" data-draw="k-cpp">—</div><div class="lf-hint">Spend ÷ Meta paying customers</div></div>
@@ -155,6 +157,28 @@ body{margin:0;background:var(--color-bg);color:var(--color-fg);font-family:var(-
       </table>
     </div>
     <p class="lf-note lf-gap">Not measured yet: App Store page view → install (target 25–30%) needs App Store Connect data, and influencer views → downloads (target 5 per 1,000 views) needs view counts from the creators’ posts.</p>
+  </section>
+
+  <section class="lf-card" id="lf-plans-card">
+    <h2>Monthly vs annual, and cancellations</h2>
+    <p class="lf-note">Paying customers by plan, and who cancelled in the chosen dates. A cancellation means auto-renew was turned off (or a refund): the person keeps access until their period ends. A cancellation can belong to someone who paid before these dates.</p>
+    <div class="lf-kpis lf-kpis-sm">
+      <div class="lf-kpi" id="kpi-annual-share"><div class="lf-label">Annual share of paid</div><div class="lf-val" data-source="plan_mix" data-field="share" data-where="plan=Annual" data-draw="p-annual">—</div></div>
+      <div class="lf-kpi" id="kpi-trial-cancel"><div class="lf-label">Trials cancelled</div><div class="lf-val" data-source="cancel_kpis" data-field="trial_cancels" data-row="0" data-draw="p-tc">—</div><div class="lf-hint"><span data-source="cancel_kpis" data-field="trial_cancel_rate" data-row="0" data-draw="p-tcr">—</span> of trials started</div></div>
+      <div class="lf-kpi" id="kpi-paid-cancel"><div class="lf-label">Paid subscriptions cancelled</div><div class="lf-val" data-source="cancel_kpis" data-field="paid_cancels" data-row="0" data-draw="p-pc">—</div><div class="lf-hint">vs <span data-source="cancel_kpis" data-field="paid" data-row="0" data-draw="p-paid">—</span> new paying customers</div></div>
+    </div>
+    <div class="lf-tablewrap">
+      <table class="lf-table" id="lf-plan-table" data-source="plan_mix" data-row-key="plan">
+        <thead><tr>
+          <th data-field="plan">Plan</th>
+          <th data-field="paid">Paid</th>
+          <th data-field="share">Share of paid</th>
+          <th data-field="paid_cancels">Paid cancellations</th>
+          <th data-field="trial_cancels">Trial cancellations</th>
+        </tr></thead>
+        <tbody data-draw="plan-rows"></tbody>
+      </table>
+    </div>
   </section>
 
   <section class="lf-card" id="lf-funnel-card">
@@ -398,6 +422,38 @@ dash.calc('targets', {
   },
 });
 
+dash.calc('plan_mix', {
+  title: 'Paid and cancellations by plan, in the chosen dates',
+  description: 'Adds up the daily plan rows in the date range: new paying customers, paid cancellations and trial cancellations for the monthly and annual plans.',
+  inputs: ['plans'],
+  fn: (plans) => {
+    const p = dash.params();
+    const dates = plans.map((r) => r.date).sort();
+    const from = p.from || dates[0];
+    const to = p.to || dates[dates.length - 1];
+    const keep = plans.filter((r) => r.date >= from && r.date <= to);
+    const sum = (rows, k) => rows.reduce((a, r) => a + (Number(r[k]) || 0), 0);
+    const allPaid = sum(keep, 'paid');
+    return ['Monthly', 'Annual'].map((plan) => {
+      const rows = keep.filter((r) => r.plan === plan);
+      const paid = sum(rows, 'paid');
+      return {plan, paid, share: allPaid ? paid / allPaid : null, paid_cancels: sum(rows, 'paid_cancels'), trial_cancels: sum(rows, 'trial_cancels')};
+    });
+  },
+});
+
+dash.calc('cancel_kpis', {
+  title: 'Cancellations in the chosen dates',
+  description: 'Trial cancellations against trials started, and paid cancellations against new paying customers.',
+  inputs: ['plan_mix', 'kpis'],
+  fn: (plan_mix, kpis) => {
+    const s = (k) => plan_mix.reduce((a, r) => a + (Number(r[k]) || 0), 0);
+    const k = kpis[0] || {};
+    const tc = s('trial_cancels');
+    return [{trial_cancels: tc, trial_cancel_rate: k.trials ? tc / k.trials : null, paid_cancels: s('paid_cancels'), paid: s('paid')}];
+  },
+});
+
 dash.calc('daily_chart', {
   title: 'Daily downloads by source',
   description: 'One row per day and source in the date range, for the chart.',
@@ -429,7 +485,7 @@ dash.calc('daily_chart', {
   dash.draw('k-i2t', (el) => { const k = row0('kpis'); put(el, k ? F.pct(k.install_to_trial) : null); });
   dash.draw('k-paid', (el) => { const k = row0('kpis'); put(el, k ? F.n(k.paid) : null); });
   dash.draw('k-d2p', (el) => { const k = row0('kpis'); put(el, k ? F.pct(k.download_to_paid) : null); });
-  dash.draw('k-rev', (el) => { const k = row0('kpis'); put(el, k ? F.usd(k.revenue_usd) : null); });
+  dash.draw('k-rev', (el) => { const k = row0('kpis'); put(el, k ? '$' + d3.format(',.0f')(k.revenue_usd) : null); });
   dash.draw('k-spend', (el) => { const k = row0('kpis'); put(el, k ? F.cad0(k.spend_cad) : null); });
   dash.draw('k-cpt', (el) => { const k = row0('kpis'); put(el, k ? F.cad(k.cost_per_trial_cad) : null); });
   dash.draw('k-cpp', (el) => { const k = row0('kpis'); put(el, k ? F.cad(k.cost_per_paid_cad) : null); });
@@ -600,6 +656,23 @@ dash.calc('daily_chart', {
     });
   });
 
+  dash.draw('p-annual', (el) => { const d = dash.data('plan_mix'); const r = d.status === 'ok' ? (d.data || []).find((x) => x.plan === 'Annual') : null; put(el, r ? F.pct(r.share) : null); });
+  dash.draw('p-tc', (el) => { const k = row0('cancel_kpis'); put(el, k ? F.n(k.trial_cancels) : null); });
+  dash.draw('p-tcr', (el) => { const k = row0('cancel_kpis'); put(el, k ? F.pct(k.trial_cancel_rate) : null); });
+  dash.draw('p-pc', (el) => { const k = row0('cancel_kpis'); put(el, k ? F.n(k.paid_cancels) : null); });
+  dash.draw('p-paid', (el) => { const k = row0('cancel_kpis'); put(el, k ? F.n(k.paid) : null); });
+  dash.draw('plan-rows', (tb) => {
+    const d = dash.data('plan_mix');
+    tb.replaceChildren();
+    if (d.status !== 'ok' || !d.data) return;
+    const cell = (tr, t) => { const td = document.createElement('td'); td.textContent = t; tr.appendChild(td); };
+    d.data.forEach((r) => { const tr = document.createElement('tr'); [r.plan, F.n(r.paid), F.pct(r.share), F.n(r.paid_cancels), F.n(r.trial_cancels)].forEach((t) => cell(tr, t)); tb.appendChild(tr); });
+    const s = (k) => d.data.reduce((a, r) => a + (r[k] || 0), 0);
+    const tr = document.createElement('tr'); tr.className = 'lf-total'; tr.dataset.key = '__total';
+    ['Both plans', F.n(s('paid')), '', F.n(s('paid_cancels')), F.n(s('trial_cancels'))].forEach((t) => cell(tr, t));
+    tb.appendChild(tr);
+  });
+
   dash.draw('legend', (el) => {
     el.replaceChildren(...window.lfSources.map((s) => {
       const span = document.createElement('span');
@@ -700,7 +773,7 @@ dash.calc('daily_chart', {
 </main>
 <div class="lf-lock" id="lf-lock">
   <form class="lf-lockbox" id="lf-lockform">
-    <h1>LAM Funnel by Source</h1>
+    <h1>Download to Dollar</h1>
     <p>Enter the password to view the dashboard.</p>
     <input type="password" id="lf-pw" autocomplete="current-password" placeholder="Password" aria-label="Password" required>
     <label class="lf-remember"><input type="checkbox" id="lf-rem"> Remember on this device</label>
@@ -727,7 +800,8 @@ dash.calc('daily_chart', {
     document.getElementById('lf-lock').hidden = true;
     document.getElementById('lf-main').hidden = false;
     document.getElementById('lf-updated').textContent = 'Data updated ' + new Date(d.updated).toLocaleString(undefined, {dateStyle: 'medium', timeStyle: 'short'}) + '. Refreshes about every 6 hours.';
-    dash.__load({daily, paywall, ads});
+    const plans = (d.plans || []).map(([date, pl, paid, paid_cancels, trial_cancels]) => ({date, plan: ['Monthly', 'Annual'][pl], paid, paid_cancels, trial_cancels}));
+    dash.__load({daily, paywall, ads, plans});
   }
   async function tryPw(pw, remember) {
     try {
