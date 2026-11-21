@@ -143,9 +143,9 @@ body{margin:0;background:var(--color-bg);color:var(--color-fg);font-family:var(-
     <div class="lf-card lf-kpi" id="kpi-trials"><div class="lf-label">Free trials started</div><div class="lf-val" data-source="kpis" data-field="trials" data-row="0" data-draw="k-trials">—</div><div class="lf-hint"><span data-source="kpis" data-field="install_to_trial" data-row="0" data-draw="k-i2t">—</span> of downloads</div></div>
     <div class="lf-card lf-kpi" id="kpi-paid"><div class="lf-label">Paying customers</div><div class="lf-val" data-source="kpis" data-field="paid" data-row="0" data-draw="k-paid">—</div><div class="lf-hint"><span data-source="kpis" data-field="download_to_paid" data-row="0" data-draw="k-d2p">—</span> of downloads</div></div>
     <div class="lf-card lf-kpi" id="kpi-revenue"><div class="lf-label">Total revenue (USD)</div><div class="lf-val" data-source="kpis" data-field="revenue_usd" data-row="0" data-draw="k-rev">—</div><div class="lf-hint">First payments, gross, live only</div></div>
-    <div class="lf-card lf-kpi" id="kpi-spend"><div class="lf-label">Meta ad spend (CAD)</div><div class="lf-val" data-source="kpis" data-field="spend_cad" data-row="0" data-draw="k-spend">—</div><div class="lf-hint">Only Meta spend is connected</div></div>
-    <div class="lf-card lf-kpi" id="kpi-cpt"><div class="lf-label">Meta cost per trial (CAD)</div><div class="lf-val" data-source="kpis" data-field="cost_per_trial_cad" data-row="0" data-draw="k-cpt">—</div><div class="lf-hint">Spend ÷ Meta trials</div></div>
-    <div class="lf-card lf-kpi" id="kpi-cpp"><div class="lf-label">Meta cost per paid (CAD)</div><div class="lf-val" data-source="kpis" data-field="cost_per_paid_cad" data-row="0" data-draw="k-cpp">—</div><div class="lf-hint">Spend ÷ Meta paying customers</div></div>
+    <div class="lf-card lf-kpi" id="kpi-spend"><div class="lf-label">Meta ad spend (USD)</div><div class="lf-val" data-source="kpis" data-field="spend_usd" data-row="0" data-draw="k-spend">—</div><div class="lf-hint">Only Meta spend is connected</div></div>
+    <div class="lf-card lf-kpi" id="kpi-cpt"><div class="lf-label">Meta cost per trial (USD)</div><div class="lf-val" data-source="kpis" data-field="cost_per_trial_usd" data-row="0" data-draw="k-cpt">—</div><div class="lf-hint">Spend ÷ Meta trials</div></div>
+    <div class="lf-card lf-kpi" id="kpi-cpp"><div class="lf-label">Meta cost per paid (USD)</div><div class="lf-val" data-source="kpis" data-field="cost_per_paid_usd" data-row="0" data-draw="k-cpp">—</div><div class="lf-hint">Spend ÷ Meta paying customers</div></div>
   </section>
 
   <section class="lf-card" id="lf-targets-card">
@@ -227,10 +227,10 @@ body{margin:0;background:var(--color-bg);color:var(--color-fg);font-family:var(-
           <th data-field="paid">Paid</th>
           <th data-field="trial_to_paid">Trial → paid</th>
           <th data-field="revenue_usd">Revenue (USD)</th>
-          <th data-field="spend_cad">Spend (CAD)</th>
-          <th data-field="cost_per_install_cad">Cost / download</th>
-          <th data-field="cost_per_trial_cad">Cost / trial</th>
-          <th data-field="cost_per_paid_cad">Cost / paid</th>
+          <th data-field="spend_usd">Spend (USD)</th>
+          <th data-field="cost_per_install_usd">Cost / download</th>
+          <th data-field="cost_per_trial_usd">Cost / trial</th>
+          <th data-field="cost_per_paid_usd">Cost / paid</th>
         </tr></thead>
         <tbody data-draw="source-rows"></tbody>
       </table>
@@ -260,10 +260,10 @@ body{margin:0;background:var(--color-bg);color:var(--color-fg);font-family:var(-
           <th data-field="install_to_trial">Download → trial</th>
           <th data-field="paid">Paid</th>
           <th data-field="revenue_usd">Revenue (USD)</th>
-          <th data-field="spend_cad">Spend (CAD)</th>
-          <th data-field="cost_per_install_cad">Cost / download</th>
-          <th data-field="cost_per_trial_cad">Cost / trial</th>
-          <th data-field="cost_per_paid_cad">Cost / paid</th>
+          <th data-field="spend_usd">Spend (USD)</th>
+          <th data-field="cost_per_install_usd">Cost / download</th>
+          <th data-field="cost_per_trial_usd">Cost / trial</th>
+          <th data-field="cost_per_paid_usd">Cost / paid</th>
         </tr></thead>
         <tbody data-draw="ad-rows"></tbody>
       </table>
@@ -287,7 +287,7 @@ body{margin:0;background:var(--color-bg);color:var(--color-fg);font-family:var(-
       <li>Paid means a first payment: a trial that converted or a direct purchase. Renewals aren’t counted. Promo (free) accounts are left out.</li>
       <li>Trial → paid compares people who paid in the period with people who started a trial in it. Trials take 7 days to convert, so recent trials haven’t had the chance yet.</li>
       <li>“Organic / untracked” means the download came without a tracked ad or link: App Store search, our own social posts, influencers without a tracked link, word of mouth, and some team installs. It did not rise when Meta spend rose, so few Meta ad downloads are hiding in it.</li>
-      <li>Meta spend is from Meta Ads Manager in CAD. Revenue is Apple’s gross in USD, before Apple’s cut.</li>
+      <li>All money is in USD. Meta spend is converted from Meta’s account currency at one fixed rate per month: the Bank of Canada average of the month before (October 2026: 1.3962, November 2026: 1.4135). Revenue is Apple’s gross, before Apple’s cut.</li>
     </ul>
   </details>
 </div>
@@ -313,9 +313,8 @@ window.lfSorted = (tableId, rows) => {
 window.lfFmt = {
   n: d3.format(','),
   pct: (v) => v == null || !isFinite(v) ? '—' : d3.format('.1%')(v),
-  cad: (v) => v == null || !isFinite(v) ? '—' : '$' + d3.format(',.2f')(v),
-  usd: (v) => v == null ? '—' : '$' + d3.format(',.2f')(v),
-  cad0: (v) => v == null || !isFinite(v) ? '—' : '$' + d3.format(',.0f')(v),
+  usd: (v) => v == null || !isFinite(v) ? '—' : '$' + d3.format(',.2f')(v),
+  usd0: (v) => v == null || !isFinite(v) ? '—' : '$' + d3.format(',.0f')(v),
   day: d3.utcFormat('%b %-d'),
 };
 
@@ -338,16 +337,16 @@ dash.calc('by_source', {
       const trials = Math.max(0, sum(rows, 'trials'));
       const paid = Math.max(0, sum(rows, 'paid'));
       const revenue_usd = paid ? Math.max(0, Math.round(sum(rows, 'revenue_usd') * 100) / 100) : 0;
-      const spend = sum(rows, 'spend_cad');
-      const spend_cad = spend > 0 ? Math.round(spend * 100) / 100 : null;
+      const spend = sum(rows, 'spend_usd');
+      const spend_usd = spend > 0 ? Math.round(spend * 100) / 100 : null;
       return {
-        source, installs, trials, paid, revenue_usd, spend_cad,
+        source, installs, trials, paid, revenue_usd, spend_usd,
         install_share: allInstalls ? installs / allInstalls : null,
         install_to_trial: installs ? trials / installs : null,
         trial_to_paid: trials ? paid / trials : null,
-        cost_per_install_cad: spend_cad != null && installs ? spend_cad / installs : null,
-        cost_per_trial_cad: spend_cad != null && trials ? spend_cad / trials : null,
-        cost_per_paid_cad: spend_cad != null && paid ? spend_cad / paid : null,
+        cost_per_install_usd: spend_usd != null && installs ? spend_usd / installs : null,
+        cost_per_trial_usd: spend_usd != null && trials ? spend_usd / trials : null,
+        cost_per_paid_usd: spend_usd != null && paid ? spend_usd / paid : null,
       };
     });
   },
@@ -361,15 +360,15 @@ dash.calc('kpis', {
     const s = (k) => by_source.reduce((a, r) => a + (Number(r[k]) || 0), 0);
     const meta = by_source.find((r) => r.source === 'Meta ads') || {};
     const installs = s('installs'), trials = s('trials'), paid = s('paid');
-    const spend_cad = meta.spend_cad ?? null;
+    const spend_usd = meta.spend_usd ?? null;
     return [{
       installs, trials, paid,
       revenue_usd: Math.round(s('revenue_usd') * 100) / 100,
-      spend_cad,
+      spend_usd,
       install_to_trial: installs ? trials / installs : null,
       download_to_paid: installs ? paid / installs : null,
-      cost_per_trial_cad: spend_cad != null && meta.trials ? spend_cad / meta.trials : null,
-      cost_per_paid_cad: spend_cad != null && meta.paid ? spend_cad / meta.paid : null,
+      cost_per_trial_usd: spend_usd != null && meta.trials ? spend_usd / meta.trials : null,
+      cost_per_paid_usd: spend_usd != null && meta.paid ? spend_usd / meta.paid : null,
     }];
   },
 });
@@ -414,8 +413,8 @@ dash.calc('by_ad', {
       const s = (k) => rows.reduce((a, r) => a + (Number(r[k]) || 0), 0);
       const f = rows[0];
       const installs = s('installs'), trials = s('trials'), paid = s('paid');
-      const spend_cad = Math.round(s('spend_cad') * 100) / 100;
-      if (!installs && !trials && !paid && !spend_cad) continue;
+      const spend_usd = Math.round(s('spend_usd') * 100) / 100;
+      if (!installs && !trials && !paid && !spend_usd) continue;
       out.push({
         key,
         name: level === 'campaign' ? f.campaign : level === 'adset' ? f.adset : f.ad,
@@ -424,14 +423,14 @@ dash.calc('by_ad', {
         fb: level === 'ad' ? (f.fb || '') : '',
         installs, trials, paid,
         revenue_usd: Math.round(s('revenue_usd') * 100) / 100,
-        spend_cad,
+        spend_usd,
         install_to_trial: installs ? trials / installs : null,
-        cost_per_install_cad: installs ? spend_cad / installs : null,
-        cost_per_trial_cad: trials ? spend_cad / trials : null,
-        cost_per_paid_cad: paid ? spend_cad / paid : null,
+        cost_per_install_usd: installs ? spend_usd / installs : null,
+        cost_per_trial_usd: trials ? spend_usd / trials : null,
+        cost_per_paid_usd: paid ? spend_usd / paid : null,
       });
     }
-    return out.sort((a, b) => b.spend_cad - a.spend_cad || b.installs - a.installs);
+    return out.sort((a, b) => b.spend_usd - a.spend_usd || b.installs - a.installs);
   },
 });
 
@@ -511,7 +510,7 @@ dash.calc('compare', {
       return {
         installs: s(d, 'installs'), trials: Math.max(0, s(d, 'trials')), paid: Math.max(0, s(d, 'paid')),
         revenue: Math.max(0, s(d, 'revenue_usd')), opens: s(pw, 'first_opens'), pw: s(pw, 'paywall_new'),
-        spend: s(meta, 'spend_cad'), metaTrials: Math.max(0, s(meta, 'trials')),
+        spend: s(meta, 'spend_usd'), metaTrials: Math.max(0, s(meta, 'trials')),
       };
     };
     const A = tot('a'), B = tot('b');
@@ -530,7 +529,7 @@ dash.calc('compare', {
       {metric: 'Trial → paid', kind: 'pct', a: rate(A.paid, A.trials), b: rate(B.paid, B.trials), z: z(A.paid, A.trials, B.paid, B.trials)},
       {metric: 'Download → paid', kind: 'pct', a: rate(A.paid, A.installs), b: rate(B.paid, B.installs), z: z(A.paid, A.installs, B.paid, B.installs)},
       {metric: 'Revenue per download (USD)', kind: 'usd', a: rate(A.revenue, A.installs), b: rate(B.revenue, B.installs)},
-      {metric: 'Meta cost per trial (CAD)', kind: 'cad', lowerBetter: true, a: rate(A.spend, A.metaTrials), b: rate(B.spend, B.metaTrials)},
+      {metric: 'Meta cost per trial (USD)', kind: 'usd', lowerBetter: true, a: rate(A.spend, A.metaTrials), b: rate(B.spend, B.metaTrials)},
     ];
     return rows.map((r) => {
       const change = r.a != null && r.b != null ? (r.kind === 'pct' ? r.b - r.a : (r.a ? (r.b - r.a) / r.a : null)) : null;
@@ -551,7 +550,7 @@ dash.calc('daily_chart', {
     const from = p.from || dates[0];
     const to = p.to || dates[dates.length - 1];
     return daily.filter((r) => r.date >= from && r.date <= to)
-      .map((r) => ({date: r.date, source: r.source, installs: r.installs, trials: Math.max(0, r.trials), spend_cad: r.spend_cad}));
+      .map((r) => ({date: r.date, source: r.source, installs: r.installs, trials: Math.max(0, r.trials), spend_usd: r.spend_usd}));
   },
 });
 </script>
@@ -568,9 +567,9 @@ dash.calc('daily_chart', {
   dash.draw('k-paid', (el) => { const k = row0('kpis'); put(el, k ? F.n(k.paid) : null); });
   dash.draw('k-d2p', (el) => { const k = row0('kpis'); put(el, k ? F.pct(k.download_to_paid) : null); });
   dash.draw('k-rev', (el) => { const k = row0('kpis'); put(el, k ? '$' + d3.format(',.0f')(k.revenue_usd) : null); });
-  dash.draw('k-spend', (el) => { const k = row0('kpis'); put(el, k ? F.cad0(k.spend_cad) : null); });
-  dash.draw('k-cpt', (el) => { const k = row0('kpis'); put(el, k ? F.cad(k.cost_per_trial_cad) : null); });
-  dash.draw('k-cpp', (el) => { const k = row0('kpis'); put(el, k ? F.cad(k.cost_per_paid_cad) : null); });
+  dash.draw('k-spend', (el) => { const k = row0('kpis'); put(el, k ? F.usd0(k.spend_usd) : null); });
+  dash.draw('k-cpt', (el) => { const k = row0('kpis'); put(el, k ? F.usd(k.cost_per_trial_usd) : null); });
+  dash.draw('k-cpp', (el) => { const k = row0('kpis'); put(el, k ? F.usd(k.cost_per_paid_usd) : null); });
 
   dash.draw('range', {
     mount: (el) => {
@@ -671,15 +670,15 @@ dash.calc('daily_chart', {
       const td = cell(tr, '');
       const sw = document.createElement('span'); sw.className = 'lf-swatch'; sw.style.background = window.lfColor(r.source);
       td.append(sw, document.createTextNode(window.lfLabel(r.source)));
-      const paid = r.spend_cad != null;
+      const paid = r.spend_usd != null;
       [F.n(r.installs), F.n(r.trials), F.pct(r.install_to_trial), F.n(r.paid), F.pct(r.trial_to_paid), F.usd(r.revenue_usd),
-       paid ? F.cad(r.spend_cad) : 'not connected', paid ? F.cad(r.cost_per_install_cad) : '—', paid ? F.cad(r.cost_per_trial_cad) : '—', paid ? F.cad(r.cost_per_paid_cad) : '—']
+       paid ? F.usd(r.spend_usd) : 'not connected', paid ? F.usd(r.cost_per_install_usd) : '—', paid ? F.usd(r.cost_per_trial_usd) : '—', paid ? F.usd(r.cost_per_paid_usd) : '—']
         .forEach((t) => cell(tr, t));
       tb.appendChild(tr);
     });
     if (k) {
       const tr = document.createElement('tr'); tr.className = 'lf-total'; tr.dataset.key = '__total';
-      ['All sources', F.n(k.installs), F.n(k.trials), F.pct(k.install_to_trial), F.n(k.paid), F.pct(k.trials ? k.paid / k.trials : null), F.usd(k.revenue_usd), F.cad(k.spend_cad), '', '', '']
+      ['All sources', F.n(k.installs), F.n(k.trials), F.pct(k.install_to_trial), F.n(k.paid), F.pct(k.trials ? k.paid / k.trials : null), F.usd(k.revenue_usd), F.usd(k.spend_usd), '', '', '']
         .forEach((t) => cell(tr, t));
       tb.appendChild(tr);
     }
@@ -723,7 +722,7 @@ dash.calc('daily_chart', {
       }
       if (r.parent) { const pa = document.createElement('div'); pa.className = 'lf-dash'; pa.textContent = r.parent; td.appendChild(pa); }
       td.style.whiteSpace = 'normal'; td.style.minWidth = '180px';
-      [F.n(r.installs), F.n(r.trials), F.pct(r.install_to_trial), F.n(r.paid), F.usd(r.revenue_usd), F.cad(r.spend_cad), F.cad(r.cost_per_install_cad), F.cad(r.cost_per_trial_cad), F.cad(r.cost_per_paid_cad)]
+      [F.n(r.installs), F.n(r.trials), F.pct(r.install_to_trial), F.n(r.paid), F.usd(r.revenue_usd), F.usd(r.spend_usd), F.usd(r.cost_per_install_usd), F.usd(r.cost_per_trial_usd), F.usd(r.cost_per_paid_usd)]
         .forEach((t) => cell(tr, t));
       tb.appendChild(tr);
     });
@@ -805,7 +804,7 @@ dash.calc('daily_chart', {
     const d = dash.data('compare');
     tb.replaceChildren();
     if (d.status !== 'ok' || !d.data) return;
-    const fmt = (kind, v) => v == null || !isFinite(v) ? '—' : kind === 'n' ? F.n(v) : kind === 'pct' ? F.pct(v) : kind === 'usd' ? F.usd(v) : F.cad(v);
+    const fmt = (kind, v) => v == null || !isFinite(v) ? '—' : kind === 'n' ? F.n(v) : kind === 'pct' ? F.pct(v) : kind === 'usd' ? F.usd(v) : F.usd(v);
     const sign = (v) => (v > 0 ? '+' : v < 0 ? '−' : '') ;
     d.data.forEach((r) => {
       const tr = document.createElement('tr');
@@ -845,7 +844,7 @@ dash.calc('daily_chart', {
     const table = dates.map((date) => {
       const o = {date, trials: 0, spend: 0};
       srcs.forEach((s) => { o[s] = 0; });
-      byDate.get(date).forEach((r) => { if (srcs.includes(r.source)) o[r.source] += r.installs || 0; o.trials += r.trials || 0; o.spend += r.spend_cad || 0; });
+      byDate.get(date).forEach((r) => { if (srcs.includes(r.source)) o[r.source] += r.installs || 0; o.trials += r.trials || 0; o.spend += r.spend_usd || 0; });
       return o;
     });
     const W = el.clientWidth || 600, H = 240, m = {t: 8, r: 8, b: 24, l: 32};
@@ -870,7 +869,7 @@ dash.calc('daily_chart', {
       .attr('y', m.t).attr('height', H - m.b - m.t).attr('fill', 'transparent')
       .on('pointerenter pointermove', (event, o) => {
         const line = (k, v) => { const r = document.createElement('div'); const a = document.createElement('span'); a.textContent = k; const b = document.createElement('b'); b.textContent = v; r.append(a, b); return r; };
-        tip.replaceChildren(line(F.day(new Date(o.date + 'T00:00:00Z')), ''), ...srcs.filter((s) => o[s]).map((s) => line(window.lfLabel(s), F.n(o[s]))), line('Trials (all)', F.n(o.trials)), line('Meta spend', F.cad(o.spend)));
+        tip.replaceChildren(line(F.day(new Date(o.date + 'T00:00:00Z')), ''), ...srcs.filter((s) => o[s]).map((s) => line(window.lfLabel(s), F.n(o[s]))), line('Trials (all)', F.n(o.trials)), line('Meta spend', F.usd(o.spend)));
         tip.hidden = false;
         const [px, py] = d3.pointer(event, el);
         const tw = tip.offsetWidth;
@@ -946,9 +945,13 @@ dash.calc('daily_chart', {
     return JSON.parse(new TextDecoder().decode(plain));
   }
   function show(d) {
-    const daily = d.daily.map(([date, s, installs, trials, paid, revenue_usd, spend_cad]) => ({date, source: d.sources[s], installs, trials, paid, revenue_usd, spend_cad}));
+    // Meta bills in CAD. Spend is shown in USD at one fixed rate per month: the Bank of Canada average CAD per USD of the month before.
+    const FX = Object.assign({'2026-10': 1.3962, '2026-11': 1.4135}, d.fx || {});
+    const fxMonths = Object.keys(FX).sort();
+    const toUsd = (date, cad) => { if (cad == null) return null; const m = String(date).slice(0, 7); let r = FX[fxMonths[0]]; for (const k of fxMonths) if (k <= m) r = FX[k]; return Math.round(Number(cad) / r * 100) / 100; };
+    const daily = d.daily.map(([date, s, installs, trials, paid, revenue_usd, spend_cad]) => ({date, source: d.sources[s], installs, trials, paid, revenue_usd, spend_usd: toUsd(date, spend_cad)}));
     const paywall = d.paywall.map(([date, paywall_users, first_opens, paywall_new]) => ({date, paywall_users, first_opens, paywall_new}));
-    const ads = d.ads.rows.map(([date, a, installs, trials, paid, revenue_usd, spend_cad]) => { const [ad_id, ad, adset, campaign, ig, fb] = d.ads.list[a]; return {date, ad_id, ad, adset, campaign, ig, fb, installs, trials, paid, revenue_usd, spend_cad}; });
+    const ads = d.ads.rows.map(([date, a, installs, trials, paid, revenue_usd, spend_cad]) => { const [ad_id, ad, adset, campaign, ig, fb] = d.ads.list[a]; return {date, ad_id, ad, adset, campaign, ig, fb, installs, trials, paid, revenue_usd, spend_usd: toUsd(date, spend_cad)}; });
     document.getElementById('lf-lock').hidden = true;
     document.getElementById('lf-main').hidden = false;
     document.getElementById('lf-updated').textContent = 'Data updated ' + new Date(d.updated).toLocaleString(undefined, {dateStyle: 'medium', timeStyle: 'short'}) + '. Refreshes about every 6 hours.';
