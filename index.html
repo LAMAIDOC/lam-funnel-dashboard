@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
-<title>Download to Dollar</title>
+<title>Paid Conversions</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Source+Serif+4:wght@400&display=swap" rel="stylesheet">
 <style>
 :root{--color-fg:#1f1e1c;--color-fg-muted:#6b6862;--color-bg:#ffffff;--color-panel:#faf9f6;--color-border-line:#e6e3dc;
@@ -128,7 +128,7 @@ body{margin:0;background:var(--color-bg);color:var(--color-fg);font-family:var(-
 </head><body><main class="lf-page" id="lf-main" hidden>
 <div class="lf">
   <header class="lf-head" id="lf-header">
-    <h1>Download to Dollar</h1>
+    <h1>Paid Conversions</h1>
   </header>
 
   <div class="lf-controls" id="lf-range" data-draw="range"></div>
@@ -158,6 +158,7 @@ body{margin:0;background:var(--color-bg);color:var(--color-fg);font-family:var(-
         <tbody data-draw="target-rows"></tbody>
       </table>
     </div>
+    <p class="lf-note lf-gap">Industry figures: RevenueCat, State of Subscription Apps 2026 (2025 data), Health &amp; Fitness category, which includes Medical apps.</p>
     <p class="lf-note lf-gap">Not measured yet: App Store page view → install (target 25–30%) needs App Store Connect data, and influencer views → downloads (target 5 per 1,000 views) needs view counts from the creators’ posts.</p>
   </section>
 
@@ -416,11 +417,11 @@ dash.calc('targets', {
     const k = kpis[0] || {};
     const v = (s) => (funnel.find((r) => r.step === s) || {});
     const rows = [
-      {metric: 'Download → paywall', actual: v('Reached paywall').from_previous, target: 0.75, target_label: '75%', note: 'New users reaching the paywall within a day'},
-      {metric: 'Paywall → trial', actual: v('Reached paywall').value ? k.trials / v('Reached paywall').value : null, target: 0.14, target_label: '14%', note: 'Trials ÷ new users who reached the paywall'},
-      {metric: 'Download → trial', actual: k.installs ? k.trials / k.installs : null, target: 0.10, target_label: '10%', note: 'Median app 6.2%, top 10% of apps 20%'},
-      {metric: 'Trial → paid', actual: k.trials ? k.paid / k.trials : null, target: 0.399, target_label: '39.9%', note: 'Health & Fitness median; top 10% is 68.3%'},
-      {metric: 'Download → paid', actual: k.installs ? k.paid / k.installs : null, target: 0.04, target_label: '4–7%', note: 'The full funnel'},
+      {metric: 'Download → paywall', actual: v('Reached paywall').from_previous, target: 0.75, target_label: '75%', note: 'No published industry benchmark. Target is from the Jake Castillo notes.'},
+      {metric: 'Paywall → trial', actual: v('Reached paywall').value ? k.trials / v('Reached paywall').value : null, target: 0.14, target_label: '14%', note: 'No published industry benchmark for new users. Target is from the Jake Castillo notes.'},
+      {metric: 'Download → trial', actual: k.installs ? k.trials / k.installs : null, target: 0.10, target_label: '10%', note: 'Health & Fitness median 6.9%, top 25% over 23%. North America median 7.1%.'},
+      {metric: 'Trial → paid', actual: k.trials ? k.paid / k.trials : null, target: 0.399, target_label: '39.9%', note: 'Health & Fitness median 37.7%, top 25% 51.4%. North America median 34.2%.'},
+      {metric: 'Download → paid', actual: k.installs ? k.paid / k.installs : null, target: 0.04, target_label: '4–7%', note: 'Health & Fitness median 2.9%, top 25% 6.2% (paid within 35 days of download).'},
     ];
     return rows.map((r) => ({...r, status: r.actual == null ? 'no data' : r.actual >= r.target ? 'on target' : r.actual >= r.target * 0.8 ? 'close' : 'below'}));
   },
@@ -782,7 +783,7 @@ dash.calc('daily_chart', {
 </main>
 <div class="lf-lock" id="lf-lock">
   <form class="lf-lockbox" id="lf-lockform">
-    <h1>Download to Dollar</h1>
+    <h1>Paid Conversions</h1>
     <p>Enter the password to view the dashboard.</p>
     <input type="password" id="lf-pw" autocomplete="current-password" placeholder="Password" aria-label="Password" required>
     <label class="lf-remember"><input type="checkbox" id="lf-rem"> Remember on this device</label>
