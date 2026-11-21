@@ -1,0 +1,688 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>LAM Funnel by Source</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Source+Serif+4:wght@400&display=swap" rel="stylesheet">
+<style>
+:root{--color-fg:#1f1e1c;--color-fg-muted:#6b6862;--color-bg:#ffffff;--color-panel:#faf9f6;--color-border-line:#e6e3dc;
+--font-anthropic-sans:"Inter",system-ui,-apple-system,sans-serif;--font-anthropic-serif:"Source Serif 4",Georgia,serif;
+--cds-font-size-caption:13px;--cds-font-size-body:15px;--cds-font-size-heading:17px;--cds-font-size-title:30px;--cds-font-weight-medium:600;
+--cds-gap-xs:4px;--cds-gap-sm:8px;--cds-gap-md:12px;--cds-gap-lg:20px;--cds-pad-lg:18px;--cds-radius:10px;
+--cds-chart-grid:#eeebe5;--cds-chart-axis:#d6d2c9;--cds-text-secondary:#6b6862;--cds-surface-popover:#ffffff;--cds-border:#e6e3dc;--cds-shadow-popover:0 6px 20px rgba(0,0,0,.12);
+--c1:#c96442;--c2:#3b82a0;--c3:#7a9a4a;--c4:#a86cb4;--c5:#d3a33a}
+@media (prefers-color-scheme: dark){:root{--color-fg:#ecebe7;--color-fg-muted:#a8a49b;--color-bg:#1c1b19;--color-panel:#252421;--color-border-line:#3a3834;
+--cds-chart-grid:#2f2d2a;--cds-chart-axis:#4a4741;--cds-text-secondary:#a8a49b;--cds-surface-popover:#2a2926;--cds-border:#3a3834;--cds-shadow-popover:0 6px 20px rgba(0,0,0,.5);
+--c1:#e07a57;--c2:#5aa6c4;--c3:#98b866;--c4:#c48dcf;--c5:#e2b85a}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--color-bg);color:var(--color-fg);font-family:var(--font-anthropic-sans);font-size:var(--cds-font-size-body);line-height:1.45}
+.lf-page{max-width:1200px;margin:0 auto;padding:24px 16px 48px}
+.dash-select{font:inherit;font-size:var(--cds-font-size-caption);padding:4px 8px;border:1px solid var(--color-border-line);border-radius:var(--cds-radius);background-color:var(--color-bg);color:var(--color-fg);max-width:100%}
+.lf-lock{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:16px}
+.lf-lockbox{width:100%;max-width:360px;background:var(--color-panel);border:1px solid var(--color-border-line);border-radius:var(--cds-radius);padding:24px;display:grid;gap:12px}
+.lf-lockbox h1{font-family:var(--font-anthropic-serif);font-weight:400;font-size:24px;margin:0}
+.lf-lockbox p{margin:0;color:var(--color-fg-muted);font-size:var(--cds-font-size-caption)}
+.lf-lockbox input[type=password]{font:inherit;padding:10px 12px;border:1px solid var(--color-border-line);border-radius:8px;background:var(--color-bg);color:var(--color-fg)}
+.lf-remember{font-size:var(--cds-font-size-caption);color:var(--color-fg-muted);display:flex;gap:6px;align-items:center}
+.lf-lockbox .lf-unlock{padding:10px;font-size:var(--cds-font-size-body);background:var(--color-fg);color:var(--color-bg);border-color:var(--color-fg)}
+.lf-lockbox .lf-err{color:#c0392b}
+.lf-updated{color:var(--color-fg-muted);font-size:var(--cds-font-size-caption);margin-top:24px}
+
+.lf { display: grid; gap: var(--cds-gap-lg); }
+.lf-head h1 { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-title); margin: 0 0 var(--cds-gap-xs); }
+.lf-sub { color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); margin: 0; }
+.lf-take { font-size: var(--cds-font-size-body); margin: var(--cds-gap-sm) 0 0; max-width: 70ch; }
+.lf-controls { display: flex; flex-wrap: wrap; gap: var(--cds-gap-sm); align-items: center; }
+.lf-btn { font: inherit; font-size: var(--cds-font-size-caption); padding: 4px 10px; border-radius: 999px; border: 1px solid var(--color-border-line); background: var(--color-bg); color: var(--color-fg); cursor: pointer; }
+.lf-btn[aria-pressed="true"] { background: var(--color-fg); color: var(--color-bg); border-color: var(--color-fg); }
+.lf-date { font: inherit; font-size: var(--cds-font-size-caption); padding: 3px 6px; border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); background: var(--color-bg); color: var(--color-fg); }
+.lf-dash { color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); }
+.lf-card { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-lg); min-width: 0; }
+.lf-card h2 { font-size: var(--cds-font-size-heading); font-weight: var(--cds-font-weight-medium); margin: 0 0 var(--cds-gap-xs); }
+.lf-card .lf-note { color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); margin: 0 0 var(--cds-gap-md); }
+.lf-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: var(--cds-gap-md); }
+.lf-kpi .lf-label { color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); }
+.lf-kpi .lf-val { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-title); font-variant-numeric: tabular-nums; line-height: 1.2; }
+.lf-kpi .lf-hint { color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); }
+.lf-funnel { min-height: 200px; }
+.lf-frow { display: grid; grid-template-columns: minmax(90px, 140px) 1fr; gap: var(--cds-gap-sm); align-items: center; margin-bottom: var(--cds-gap-sm); }
+.lf-fname { font-size: var(--cds-font-size-caption); }
+.lf-fbarwrap { position: relative; height: 34px; }
+.lf-fbar { height: 100%; border-radius: 4px; min-width: 2px; }
+.lf-flabel { position: absolute; top: 0; height: 100%; display: flex; align-items: center; gap: 8px; font-variant-numeric: tabular-nums; font-size: var(--cds-font-size-caption); white-space: nowrap; }
+.lf-flabel b { font-size: var(--cds-font-size-body); }
+.lf-fconv { color: var(--color-fg-muted); }
+.lf-tablewrap { overflow-x: auto; }
+.lf-table { width: 100%; border-collapse: collapse; font-size: var(--cds-font-size-caption); font-variant-numeric: tabular-nums; }
+.lf-table th { text-align: right; font-weight: var(--cds-font-weight-medium); color: var(--color-fg-muted); padding: 6px 8px; border-bottom: 1px solid var(--color-border-line); white-space: nowrap; }
+.lf-table td { text-align: right; padding: 8px; border-bottom: 1px solid var(--color-border-line); white-space: nowrap; }
+.lf-table th:first-child, .lf-table td:first-child { text-align: left; }
+.lf-table tr.lf-total td { font-weight: var(--cds-font-weight-medium); border-bottom: none; }
+.lf-swatch { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: middle; }
+.lf-chart { position: relative; min-height: 240px; }
+.lf-chart text { fill: var(--cds-text-secondary); font-size: var(--cds-font-size-caption); }
+.lf-chart .domain, .lf-chart .tick line { stroke: var(--cds-chart-axis); }
+.lf-chart .lf-grid line { stroke: var(--cds-chart-grid); }
+.lf-legend { display: flex; flex-wrap: wrap; gap: var(--cds-gap-md); font-size: var(--cds-font-size-caption); margin-bottom: var(--cds-gap-sm); }
+.lf-tip { position: absolute; pointer-events: none; background: var(--cds-surface-popover); border: 1px solid var(--cds-border); box-shadow: var(--cds-shadow-popover); border-radius: var(--cds-radius); padding: 8px 10px; font-size: var(--cds-font-size-caption); font-variant-numeric: tabular-nums; white-space: nowrap; z-index: 2; }
+.lf-tip div { display: flex; justify-content: space-between; gap: 12px; }
+.lf-empty { color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); }
+.lf-foot summary { cursor: pointer; font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.lf-foot ul { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); padding-left: 18px; }
+.lf-table th[data-sortable] { cursor: pointer; user-select: none; }
+.lf-table th[data-sortable]:hover { color: var(--color-fg); }
+.lf-table th[aria-sort="descending"]::after { content: " ↓"; }
+.lf-table th[aria-sort="ascending"]::after { content: " ↑"; }
+.lf-table th[aria-sort="descending"], .lf-table th[aria-sort="ascending"] { color: var(--color-fg); }
+.lf-cardhead { display: flex; justify-content: space-between; align-items: baseline; gap: var(--cds-gap-sm); }
+.lf-two { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: var(--cds-gap-lg); }
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script>window.dash = (() => {
+  const calcs = {}, src = {}, draws = {}, cache = {};
+  let params = {}, loaded = false;
+  const api = {
+    colors: ['var(--c1)', 'var(--c2)', 'var(--c3)', 'var(--c4)', 'var(--c5)'],
+    calc(id, o) { calcs[id] = o; },
+    data(id) {
+      if (id in src) return {status: 'ok', data: src[id]};
+      if (calcs[id] && loaded) {
+        if (!(id in cache)) cache[id] = calcs[id].fn(...calcs[id].inputs.map((i) => api.data(i).data));
+        return {status: 'ok', data: cache[id]};
+      }
+      return {status: loaded ? 'error' : 'loading', data: []};
+    },
+    params() { return {...params}; },
+    setParams(p) { for (const k in p) { if (p[k] == null) delete params[k]; else params[k] = p[k]; } redraw(); },
+    resetParams() { params = {}; redraw(); },
+    draw(name, f) { if (!f) { run(name); return; } draws[name] = typeof f === 'function' ? {update: f} : f; },
+    onData() {}, setLink() {}, refresh() {}, loader() {},
+  };
+  function run(name) {
+    const d = draws[name]; if (!d) return;
+    document.querySelectorAll('[data-draw="' + name + '"]').forEach((el) => {
+      try {
+        if (d.mount && !el.__lfm) { el.replaceChildren(); el.__lfm = {v: d.mount(el)}; }
+        d.update && d.update(el, el.__lfm && el.__lfm.v);
+      } catch (e) { console.error(name, e); }
+    });
+  }
+  function redraw() { for (const k in cache) delete cache[k]; Object.keys(draws).forEach(run); }
+  api.__load = (data) => { Object.assign(src, data); loaded = true; redraw(); };
+  api.__redraw = redraw;
+  let t; window.addEventListener('resize', () => { clearTimeout(t); t = setTimeout(redraw, 150); });
+  return api;
+})();
+</script>
+</head><body><main class="lf-page" id="lf-main" hidden>
+<div class="lf">
+  <header class="lf-head" id="lf-header">
+    <h1>Download → paywall → trial → paid</h1>
+    <p class="lf-sub">Live payments only (Apple test purchases removed). Revenue in USD gross, ad spend in CAD. Refreshed about every 6 hours.</p>
+    <p class="lf-take" id="lf-takeaway">In this period, Meta ads brought <b data-source="by_source" data-field="install_share" data-where="source=Meta ads" data-draw="t-share">—</b> of downloads and <b data-source="by_source" data-field="paid" data-where="source=Meta ads" data-draw="t-metapaid">—</b> of the <b data-source="kpis" data-field="paid" data-row="0" data-draw="t-paid">—</b> paying customers, at <b data-source="kpis" data-field="cost_per_paid_cad" data-row="0" data-draw="t-cpp">—</b> CAD of ad spend per paying customer.</p>
+  </header>
+
+  <div class="lf-controls" id="lf-range" data-draw="range"></div>
+
+  <section class="lf-kpis" id="lf-kpis">
+    <div class="lf-card lf-kpi" id="kpi-downloads"><div class="lf-label">Downloads</div><div class="lf-val" data-source="kpis" data-field="installs" data-row="0" data-draw="k-installs">—</div><div class="lf-hint">All sources</div></div>
+    <div class="lf-card lf-kpi" id="kpi-trials"><div class="lf-label">Free trials started</div><div class="lf-val" data-source="kpis" data-field="trials" data-row="0" data-draw="k-trials">—</div><div class="lf-hint"><span data-source="kpis" data-field="install_to_trial" data-row="0" data-draw="k-i2t">—</span> of downloads</div></div>
+    <div class="lf-card lf-kpi" id="kpi-paid"><div class="lf-label">Paying customers</div><div class="lf-val" data-source="kpis" data-field="paid" data-row="0" data-draw="k-paid">—</div><div class="lf-hint"><span data-source="kpis" data-field="revenue_usd" data-row="0" data-draw="k-rev">—</span> USD first payments</div></div>
+    <div class="lf-card lf-kpi" id="kpi-spend"><div class="lf-label">Meta ad spend (CAD)</div><div class="lf-val" data-source="kpis" data-field="spend_cad" data-row="0" data-draw="k-spend">—</div><div class="lf-hint">Only Meta spend is connected</div></div>
+    <div class="lf-card lf-kpi" id="kpi-cpt"><div class="lf-label">Meta cost per trial (CAD)</div><div class="lf-val" data-source="kpis" data-field="cost_per_trial_cad" data-row="0" data-draw="k-cpt">—</div><div class="lf-hint">Spend ÷ Meta trials</div></div>
+    <div class="lf-card lf-kpi" id="kpi-cpp"><div class="lf-label">Meta cost per paid (CAD)</div><div class="lf-val" data-source="kpis" data-field="cost_per_paid_cad" data-row="0" data-draw="k-cpp">—</div><div class="lf-hint">Spend ÷ Meta paying customers</div></div>
+  </section>
+
+  <section class="lf-card" id="lf-funnel-card">
+    <h2>Funnel, all sources</h2>
+    <p class="lf-note">Each step shows its count and the share that made it from the step before. Paywall counts people who saw it each day, so someone who saw it on two days counts twice.</p>
+    <div class="lf-funnel" data-source="funnel" data-draw="funnel"></div>
+  </section>
+
+  <section class="lf-card" id="lf-source-card">
+    <h2>Funnel and cost by source</h2>
+    <p class="lf-note">Click a column title to sort, highest first; click again for lowest first. Paywall views can’t be split by source yet, because the app sends paywall events to Mixpanel only. Cost columns cover Meta, the only ad spend connected.</p>
+    <div class="lf-tablewrap">
+      <table class="lf-table" id="lf-source-table" data-source="by_source" data-row-key="source">
+        <thead><tr>
+          <th data-field="source">Source</th>
+          <th data-field="installs">Downloads</th>
+          <th data-field="trials">Trials</th>
+          <th data-field="install_to_trial">Download → trial</th>
+          <th data-field="paid">Paid</th>
+          <th data-field="trial_to_paid">Trial → paid</th>
+          <th data-field="revenue_usd">Revenue (USD)</th>
+          <th data-field="spend_cad">Spend (CAD)</th>
+          <th data-field="cost_per_install_cad">Cost / download</th>
+          <th data-field="cost_per_trial_cad">Cost / trial</th>
+          <th data-field="cost_per_paid_cad">Cost / paid</th>
+        </tr></thead>
+        <tbody data-draw="source-rows"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="lf-card" id="lf-ads-card">
+    <div class="lf-cardhead">
+      <h2>Meta ads: which campaigns and ads work</h2>
+      <button type="button" class="lf-btn" id="lf-ads-hide">Hide section</button>
+      <button type="button" class="lf-btn" id="lf-ads-show" hidden>Show section</button>
+    </div>
+    <div id="lf-ads-body">
+    <p class="lf-note">Pick a level and, if you like, one campaign. Sorted by spend until you click a column title. A few downloads that AppsFlyer couldn’t tie to an ad are left out, so totals here can sit slightly below the Meta row above.</p>
+    <div class="lf-controls lf-adcontrols" id="lf-ad-controls">
+      <label class="lf-dash" for="lf-ad-level">Show by</label>
+      <select class="dash-select" id="lf-ad-level" aria-label="Show by" data-draw="ad-level"></select>
+      <label class="lf-dash" for="lf-ad-campaign">Campaign</label>
+      <select class="dash-select" id="lf-ad-campaign" aria-label="Campaign" data-source="ads" data-draw="ad-campaign"></select>
+    </div>
+    <div class="lf-tablewrap">
+      <table class="lf-table" id="lf-ad-table" data-source="by_ad" data-row-key="key">
+        <thead><tr>
+          <th data-field="name">Name</th>
+          <th data-field="installs">Downloads</th>
+          <th data-field="trials">Trials</th>
+          <th data-field="install_to_trial">Download → trial</th>
+          <th data-field="paid">Paid</th>
+          <th data-field="revenue_usd">Revenue (USD)</th>
+          <th data-field="spend_cad">Spend (CAD)</th>
+          <th data-field="cost_per_install_cad">Cost / download</th>
+          <th data-field="cost_per_trial_cad">Cost / trial</th>
+          <th data-field="cost_per_paid_cad">Cost / paid</th>
+        </tr></thead>
+        <tbody data-draw="ad-rows"></tbody>
+      </table>
+    </div>
+    </div>
+  </section>
+
+  <section class="lf-card" id="lf-daily-card">
+    <h2>Daily downloads by source</h2>
+    <p class="lf-note">Point at a day to see downloads, trials and Meta spend.</p>
+    <div class="lf-legend" data-draw="legend"></div>
+    <div class="lf-chart" data-source="daily_chart" data-draw="daily"></div>
+  </section>
+
+  <details class="lf-foot" id="lf-notes">
+    <summary>How these numbers are counted</summary>
+    <ul>
+      <li>Downloads, trials and paid by source come from AppsFlyer, by the day the event happened (UTC).</li>
+      <li>AppsFlyer also receives Apple test (sandbox) purchases, and they land under Organic. To remove them, totals for trials, paid and revenue come from Mixpanel live (production) events, and Organic is the total minus the paid sources.</li>
+      <li>Because the two tools can date the same purchase a day apart, Organic on a single day can look off. It evens out over a week or more.</li>
+      <li>Paid means a first payment: a trial that converted or a direct purchase. Renewals aren’t counted. Promo (free) accounts are left out.</li>
+      <li>Trial → paid compares people who paid in the period with people who started a trial in it. Trials take 7 days to convert, so recent trials haven’t had the chance yet.</li>
+      <li>Meta spend is from Meta Ads Manager in CAD. Revenue is Apple’s gross in USD, before Apple’s cut.</li>
+    </ul>
+  </details>
+</div>
+
+<script>
+window.lfSources = ['Meta ads', 'Organic', 'Apple Search Ads', 'Ambassadors (Everflow)'];
+window.lfColor = (s) => dash.colors[Math.max(0, window.lfSources.indexOf(s)) % dash.colors.length];
+window.lfSort = {};
+window.lfSorted = (tableId, rows) => {
+  const st = window.lfSort[tableId];
+  if (!st) return rows;
+  const dir = st.dir === 'asc' ? 1 : -1;
+  return rows.slice().sort((a, b) => {
+    const x = a[st.field], y = b[st.field];
+    if (x == null && y == null) return 0;
+    if (x == null) return 1;
+    if (y == null) return -1;
+    if (typeof x === 'string' || typeof y === 'string') return dir * String(x).localeCompare(String(y));
+    return dir * (x - y);
+  });
+};
+window.lfFmt = {
+  n: d3.format(','),
+  pct: (v) => v == null || !isFinite(v) ? '—' : d3.format('.1%')(v),
+  cad: (v) => v == null || !isFinite(v) ? '—' : '$' + d3.format(',.2f')(v),
+  usd: (v) => v == null ? '—' : '$' + d3.format(',.2f')(v),
+  cad0: (v) => v == null || !isFinite(v) ? '—' : '$' + d3.format(',.0f')(v),
+  day: d3.utcFormat('%b %-d'),
+};
+
+dash.calc('by_source', {
+  title: 'Funnel and cost by source, in the chosen dates',
+  description: 'Adds up the daily rows in the date range per source. Organic can’t go below zero.',
+  inputs: ['daily'],
+  fn: (daily) => {
+    const p = dash.params();
+    const dates = daily.map((r) => r.date).sort();
+    const from = p.from || dates[0];
+    const to = p.to || dates[dates.length - 1];
+    const keep = daily.filter((r) => r.date >= from && r.date <= to);
+    const order = ['Meta ads', 'Organic', 'Apple Search Ads', 'Ambassadors (Everflow)'];
+    const sum = (rows, k) => rows.reduce((a, r) => a + (Number(r[k]) || 0), 0);
+    const allInstalls = sum(keep, 'installs');
+    return order.map((source) => {
+      const rows = keep.filter((r) => r.source === source);
+      const installs = sum(rows, 'installs');
+      const trials = Math.max(0, sum(rows, 'trials'));
+      const paid = Math.max(0, sum(rows, 'paid'));
+      const revenue_usd = paid ? Math.max(0, Math.round(sum(rows, 'revenue_usd') * 100) / 100) : 0;
+      const spend = sum(rows, 'spend_cad');
+      const spend_cad = spend > 0 ? Math.round(spend * 100) / 100 : null;
+      return {
+        source, installs, trials, paid, revenue_usd, spend_cad,
+        install_share: allInstalls ? installs / allInstalls : null,
+        install_to_trial: installs ? trials / installs : null,
+        trial_to_paid: trials ? paid / trials : null,
+        cost_per_install_cad: spend_cad != null && installs ? spend_cad / installs : null,
+        cost_per_trial_cad: spend_cad != null && trials ? spend_cad / trials : null,
+        cost_per_paid_cad: spend_cad != null && paid ? spend_cad / paid : null,
+      };
+    });
+  },
+});
+
+dash.calc('kpis', {
+  title: 'Totals in the chosen dates',
+  description: 'All sources added up; cost figures use Meta spend over Meta trials and paying customers.',
+  inputs: ['by_source'],
+  fn: (by_source) => {
+    const s = (k) => by_source.reduce((a, r) => a + (Number(r[k]) || 0), 0);
+    const meta = by_source.find((r) => r.source === 'Meta ads') || {};
+    const installs = s('installs'), trials = s('trials'), paid = s('paid');
+    const spend_cad = meta.spend_cad ?? null;
+    return [{
+      installs, trials, paid,
+      revenue_usd: Math.round(s('revenue_usd') * 100) / 100,
+      spend_cad,
+      install_to_trial: installs ? trials / installs : null,
+      cost_per_trial_cad: spend_cad != null && meta.trials ? spend_cad / meta.trials : null,
+      cost_per_paid_cad: spend_cad != null && meta.paid ? spend_cad / meta.paid : null,
+    }];
+  },
+});
+
+dash.calc('funnel', {
+  title: 'Funnel steps in the chosen dates',
+  description: 'Downloads, paywall viewers (people per day), trials and paying customers, with the share kept from each step.',
+  inputs: ['kpis', 'paywall'],
+  fn: (kpis, paywall) => {
+    const p = dash.params();
+    const dates = paywall.map((r) => r.date).sort();
+    const from = p.from || dates[0];
+    const to = p.to || dates[dates.length - 1];
+    const k = kpis[0] || {};
+    const pw = paywall.filter((r) => r.date >= from && r.date <= to).reduce((a, r) => a + (Number(r.paywall_users) || 0), 0);
+    const steps = [['Downloads', k.installs], ['Saw paywall', pw], ['Started trial', k.trials], ['Paid', k.paid]];
+    return steps.map(([step, value], i) => ({
+      step, value: value || 0,
+      from_previous: i && steps[i - 1][1] ? (value || 0) / steps[i - 1][1] : null,
+    }));
+  },
+});
+
+dash.calc('by_ad', {
+  title: 'Meta ads by campaign, ad set or ad, in the chosen dates',
+  description: 'Adds up the daily per-ad rows in the date range at the chosen level, for the chosen campaign; sorted by spend.',
+  inputs: ['ads'],
+  fn: (ads) => {
+    const p = dash.params();
+    const dates = ads.map((r) => r.date).sort();
+    const from = p.from || dates[0];
+    const to = p.to || dates[dates.length - 1];
+    const level = p.ad_level || 'ad';
+    const camp = p.ad_campaign || '';
+    const keep = ads.filter((r) => r.date >= from && r.date <= to && (!camp || r.campaign === camp));
+    const keyOf = (r) => level === 'campaign' ? r.campaign : level === 'adset' ? r.campaign + ' | ' + r.adset : r.ad_id;
+    const groups = d3.group(keep, keyOf);
+    const out = [];
+    for (const [key, rows] of groups) {
+      const s = (k) => rows.reduce((a, r) => a + (Number(r[k]) || 0), 0);
+      const f = rows[0];
+      const installs = s('installs'), trials = s('trials'), paid = s('paid');
+      const spend_cad = Math.round(s('spend_cad') * 100) / 100;
+      if (!installs && !trials && !paid && !spend_cad) continue;
+      out.push({
+        key,
+        name: level === 'campaign' ? f.campaign : level === 'adset' ? f.adset : f.ad,
+        parent: level === 'campaign' ? '' : level === 'adset' ? f.campaign : f.adset + ' · ' + f.campaign,
+        installs, trials, paid,
+        revenue_usd: Math.round(s('revenue_usd') * 100) / 100,
+        spend_cad,
+        install_to_trial: installs ? trials / installs : null,
+        cost_per_install_cad: installs ? spend_cad / installs : null,
+        cost_per_trial_cad: trials ? spend_cad / trials : null,
+        cost_per_paid_cad: paid ? spend_cad / paid : null,
+      });
+    }
+    return out.sort((a, b) => b.spend_cad - a.spend_cad || b.installs - a.installs);
+  },
+});
+
+dash.calc('daily_chart', {
+  title: 'Daily downloads by source',
+  description: 'One row per day and source in the date range, for the chart.',
+  inputs: ['daily'],
+  fn: (daily) => {
+    const p = dash.params();
+    const dates = daily.map((r) => r.date).sort();
+    const from = p.from || dates[0];
+    const to = p.to || dates[dates.length - 1];
+    return daily.filter((r) => r.date >= from && r.date <= to)
+      .map((r) => ({date: r.date, source: r.source, installs: r.installs, trials: Math.max(0, r.trials), spend_cad: r.spend_cad}));
+  },
+});
+</script>
+
+<script>
+(() => {
+  const F = window.lfFmt;
+  const row0 = (id) => { const d = dash.data(id); return d.status === 'ok' && d.data && d.data[0] ? d.data[0] : null; };
+  const bySource = (name) => { const d = dash.data('by_source'); return d.status === 'ok' ? (d.data || []).find((r) => r.source === name) : null; };
+  const put = (el, v) => { el.textContent = v == null ? '—' : v; };
+
+  dash.draw('t-share', (el) => { const m = bySource('Meta ads'); put(el, m ? F.pct(m.install_share) : null); });
+  dash.draw('t-metapaid', (el) => { const m = bySource('Meta ads'); put(el, m ? F.n(m.paid) : null); });
+  dash.draw('t-paid', (el) => { const k = row0('kpis'); put(el, k ? F.n(k.paid) : null); });
+  dash.draw('t-cpp', (el) => { const k = row0('kpis'); put(el, k ? F.cad0(k.cost_per_paid_cad) : null); });
+  dash.draw('k-installs', (el) => { const k = row0('kpis'); put(el, k ? F.n(k.installs) : null); });
+  dash.draw('k-trials', (el) => { const k = row0('kpis'); put(el, k ? F.n(k.trials) : null); });
+  dash.draw('k-i2t', (el) => { const k = row0('kpis'); put(el, k ? F.pct(k.install_to_trial) : null); });
+  dash.draw('k-paid', (el) => { const k = row0('kpis'); put(el, k ? F.n(k.paid) : null); });
+  dash.draw('k-rev', (el) => { const k = row0('kpis'); put(el, k ? F.usd(k.revenue_usd) : null); });
+  dash.draw('k-spend', (el) => { const k = row0('kpis'); put(el, k ? F.cad0(k.spend_cad) : null); });
+  dash.draw('k-cpt', (el) => { const k = row0('kpis'); put(el, k ? F.cad(k.cost_per_trial_cad) : null); });
+  dash.draw('k-cpp', (el) => { const k = row0('kpis'); put(el, k ? F.cad(k.cost_per_paid_cad) : null); });
+
+  dash.draw('range', {
+    mount: (el) => {
+      const mk = (tag, attrs) => Object.assign(document.createElement(tag), attrs);
+      const presets = [['7', 'Last 7 days'], ['14', 'Last 14 days'], ['30', 'Last 30 days'], ['all', 'All']];
+      const btns = presets.map(([v, label]) => {
+        const b = mk('button', {type: 'button', className: 'lf-btn', textContent: label});
+        b.dataset.preset = v;
+        el.appendChild(b);
+        return b;
+      });
+      const from = mk('input', {type: 'date', className: 'lf-date'});
+      from.setAttribute('aria-label', 'From date');
+      const dash1 = mk('span', {className: 'lf-dash', textContent: 'to'});
+      const to = mk('input', {type: 'date', className: 'lf-date'});
+      to.setAttribute('aria-label', 'To date');
+      el.append(from, dash1, to);
+      const bounds = () => {
+        const d = dash.data('daily');
+        const dates = d.status === 'ok' ? d.data.map((r) => r.date).sort() : [];
+        return {min: dates[0], max: dates[dates.length - 1]};
+      };
+      btns.forEach((b) => b.addEventListener('click', () => {
+        const {min, max} = bounds();
+        if (!max) return;
+        if (b.dataset.preset === 'all') { dash.setParams({from: null, to: null}); return; }
+        const start = new Date(max + 'T00:00:00Z');
+        start.setUTCDate(start.getUTCDate() - (Number(b.dataset.preset) - 1));
+        const s = start.toISOString().slice(0, 10);
+        dash.setParams({from: s < min ? min : s, to: null});
+      }));
+      const onDate = (input, key) => {
+        input.addEventListener('change', () => { if (input.value && input.validity.valid) dash.setParams({[key]: input.value}); });
+      };
+      onDate(from, 'from'); onDate(to, 'to');
+      return {btns, from, to, bounds};
+    },
+    update: (el, m) => {
+      const {min, max} = m.bounds();
+      if (!max) return;
+      const p = dash.params();
+      const f = p.from || min, t = p.to || max;
+      [m.from, m.to].forEach((i) => { i.min = min; i.max = max; });
+      if (document.activeElement !== m.from) m.from.value = f;
+      if (document.activeElement !== m.to) m.to.value = t;
+      const days = Math.round((new Date(t + 'T00:00:00Z') - new Date(f + 'T00:00:00Z')) / 864e5) + 1;
+      m.btns.forEach((b) => {
+        const v = b.dataset.preset;
+        const on = v === 'all' ? (f === min && t === max) : (t === max && (days === Number(v)));
+        b.setAttribute('aria-pressed', on ? 'true' : 'false');
+      });
+    },
+  });
+
+  dash.draw('funnel', (el) => {
+    const d = dash.data('funnel');
+    el.replaceChildren();
+    if (d.status !== 'ok' || !d.data) { el.textContent = d.status === 'error' ? 'Failed to load' : '—'; return; }
+    const max = d3.max(d.data, (r) => r.value) || 1;
+    const w = el.clientWidth;
+    d.data.forEach((r, i) => {
+      const row = document.createElement('div'); row.className = 'lf-frow';
+      const name = document.createElement('div'); name.className = 'lf-fname'; name.textContent = r.step;
+      const wrap = document.createElement('div'); wrap.className = 'lf-fbarwrap';
+      const bar = document.createElement('div'); bar.className = 'lf-fbar';
+      const pct = r.value / max;
+      bar.style.width = (pct * 100) + '%';
+      bar.style.background = dash.colors[0];
+      bar.style.opacity = String(1 - i * 0.15);
+      const lab = document.createElement('div'); lab.className = 'lf-flabel';
+      const b = document.createElement('b'); b.textContent = F.n(r.value);
+      b.dataset.source = 'funnel'; b.dataset.field = 'value'; b.dataset.row = String(i);
+      lab.appendChild(b);
+      if (r.from_previous != null) {
+        const c = document.createElement('span'); c.className = 'lf-fconv';
+        c.textContent = F.pct(r.from_previous) + ' of previous';
+        lab.appendChild(c);
+      }
+      const barPx = pct * Math.max(0, w - 150);
+      const inside = barPx > 170;
+      lab.style.left = inside ? '10px' : `calc(${pct * 100}% + 8px)`;
+      if (inside) { lab.style.color = 'var(--color-bg)'; lab.querySelectorAll('.lf-fconv').forEach((s) => { s.style.color = 'var(--color-bg)'; s.style.opacity = '0.85'; }); }
+      wrap.append(bar, lab);
+      row.append(name, wrap);
+      el.appendChild(row);
+    });
+  });
+
+  dash.draw('source-rows', (tb) => {
+    const d = dash.data('by_source');
+    tb.replaceChildren();
+    if (d.status !== 'ok' || !d.data) return;
+    const k = row0('kpis');
+    const cell = (tr, text) => { const td = document.createElement('td'); td.textContent = text; tr.appendChild(td); return td; };
+    window.lfSorted('lf-source-table', d.data).forEach((r) => {
+      const tr = document.createElement('tr');
+      const td = cell(tr, '');
+      const sw = document.createElement('span'); sw.className = 'lf-swatch'; sw.style.background = window.lfColor(r.source);
+      td.append(sw, document.createTextNode(r.source));
+      const paid = r.spend_cad != null;
+      [F.n(r.installs), F.n(r.trials), F.pct(r.install_to_trial), F.n(r.paid), F.pct(r.trial_to_paid), F.usd(r.revenue_usd),
+       paid ? F.cad(r.spend_cad) : 'not connected', paid ? F.cad(r.cost_per_install_cad) : '—', paid ? F.cad(r.cost_per_trial_cad) : '—', paid ? F.cad(r.cost_per_paid_cad) : '—']
+        .forEach((t) => cell(tr, t));
+      tb.appendChild(tr);
+    });
+    if (k) {
+      const tr = document.createElement('tr'); tr.className = 'lf-total'; tr.dataset.key = '__total';
+      ['All sources', F.n(k.installs), F.n(k.trials), F.pct(k.install_to_trial), F.n(k.paid), F.pct(k.trials ? k.paid / k.trials : null), F.usd(k.revenue_usd), F.cad(k.spend_cad), '', '', '']
+        .forEach((t) => cell(tr, t));
+      tb.appendChild(tr);
+    }
+  });
+
+  dash.draw('ad-level', (sel) => {
+    const opts = [['campaign', 'Campaign'], ['adset', 'Ad set'], ['ad', 'Ad']];
+    sel.replaceChildren(...opts.map(([v, t]) => new Option(t, v)));
+    sel.value = dash.params().ad_level || 'ad';
+    sel.onchange = () => dash.setParams({ad_level: sel.value});
+  });
+
+  dash.draw('ad-campaign', (sel) => {
+    const d = dash.data('ads');
+    const camps = d.status === 'ok' ? Array.from(new Set(d.data.map((r) => r.campaign))).sort() : [];
+    sel.replaceChildren(new Option('All campaigns', ''), ...camps.map((c) => new Option(c, c)));
+    sel.value = dash.params().ad_campaign || '';
+    sel.onchange = () => dash.setParams({ad_campaign: sel.value || null});
+  });
+
+  dash.draw('ad-rows', (tb) => {
+    const d = dash.data('by_ad');
+    tb.replaceChildren();
+    if (d.status !== 'ok' || !d.data) return;
+    if (!d.data.length) { const tr = document.createElement('tr'); const td = document.createElement('td'); td.colSpan = 10; td.className = 'lf-empty'; td.textContent = 'No Meta ad activity in these dates.'; tr.appendChild(td); tb.appendChild(tr); return; }
+    const cell = (tr, text) => { const td = document.createElement('td'); td.textContent = text; tr.appendChild(td); return td; };
+    window.lfSorted('lf-ad-table', d.data).forEach((r) => {
+      const tr = document.createElement('tr'); tr.dataset.key = encodeURIComponent(r.key);
+      const td = cell(tr, '');
+      const nm = document.createElement('div'); nm.textContent = r.name;
+      td.appendChild(nm);
+      if (r.parent) { const pa = document.createElement('div'); pa.className = 'lf-dash'; pa.textContent = r.parent; td.appendChild(pa); }
+      td.style.whiteSpace = 'normal'; td.style.minWidth = '180px';
+      [F.n(r.installs), F.n(r.trials), F.pct(r.install_to_trial), F.n(r.paid), F.usd(r.revenue_usd), F.cad(r.spend_cad), F.cad(r.cost_per_install_cad), F.cad(r.cost_per_trial_cad), F.cad(r.cost_per_paid_cad)]
+        .forEach((t) => cell(tr, t));
+      tb.appendChild(tr);
+    });
+  });
+
+  dash.draw('legend', (el) => {
+    el.replaceChildren(...window.lfSources.map((s) => {
+      const span = document.createElement('span');
+      const sw = document.createElement('span'); sw.className = 'lf-swatch'; sw.style.background = window.lfColor(s);
+      span.append(sw, document.createTextNode(s));
+      return span;
+    }));
+  });
+
+  dash.draw('daily', (el) => {
+    const d = dash.data('daily_chart');
+    el.replaceChildren();
+    if (d.status !== 'ok' || !d.data) { el.textContent = d.status === 'error' ? 'Failed to load' : '—'; return; }
+    if (!d.data.length) { const p = document.createElement('p'); p.className = 'lf-empty'; p.textContent = 'No days in this range.'; el.appendChild(p); return; }
+    const srcs = window.lfSources;
+    const byDate = d3.group(d.data, (r) => r.date);
+    const dates = Array.from(byDate.keys()).sort();
+    const table = dates.map((date) => {
+      const o = {date, trials: 0, spend: 0};
+      srcs.forEach((s) => { o[s] = 0; });
+      byDate.get(date).forEach((r) => { if (srcs.includes(r.source)) o[r.source] += r.installs || 0; o.trials += r.trials || 0; o.spend += r.spend_cad || 0; });
+      return o;
+    });
+    const W = el.clientWidth || 600, H = 240, m = {t: 8, r: 8, b: 24, l: 32};
+    const x = d3.scaleBand().domain(dates).range([m.l, W - m.r]).padding(0.2);
+    const stack = d3.stack().keys(srcs)(table);
+    const y = d3.scaleLinear().domain([0, d3.max(table, (o) => srcs.reduce((a, s) => a + o[s], 0)) || 1]).nice().range([H - m.b, m.t]);
+    const svg = d3.select(el).append('svg').attr('width', '100%').attr('height', H).attr('viewBox', `0 0 ${W} ${H}`)
+      .attr('role', 'img').attr('aria-label', 'Stacked bars of daily downloads by source');
+    svg.append('g').attr('class', 'lf-grid').attr('transform', `translate(${m.l},0)`)
+      .call(d3.axisLeft(y).ticks(4).tickSize(-(W - m.l - m.r)).tickFormat('')).call((g) => g.select('.domain').remove());
+    svg.append('g').attr('transform', `translate(${m.l},0)`).call(d3.axisLeft(y).ticks(4).tickSizeOuter(0)).call((g) => g.select('.domain').remove());
+    const every = Math.max(1, Math.ceil(dates.length / Math.max(2, Math.floor((W - m.l) / 60))));
+    svg.append('g').attr('transform', `translate(0,${H - m.b})`)
+      .call(d3.axisBottom(x).tickValues(dates.filter((_, i) => i % every === 0)).tickFormat((s) => F.day(new Date(s + 'T00:00:00Z'))).tickSizeOuter(0));
+    svg.append('g').selectAll('g').data(stack).join('g').style('fill', (s) => window.lfColor(s.key))
+      .selectAll('rect').data((s) => s).join('rect')
+      .attr('x', (p) => x(p.data.date)).attr('width', x.bandwidth())
+      .attr('y', (p) => y(p[1])).attr('height', (p) => Math.max(0, y(p[0]) - y(p[1])));
+    const tip = document.createElement('div'); tip.className = 'lf-tip'; tip.hidden = true; el.appendChild(tip);
+    svg.append('g').selectAll('rect').data(table).join('rect')
+      .attr('x', (o) => x(o.date) - x.step() * x.paddingInner() / 2).attr('width', x.step())
+      .attr('y', m.t).attr('height', H - m.b - m.t).attr('fill', 'transparent')
+      .on('pointerenter pointermove', (event, o) => {
+        const line = (k, v) => { const r = document.createElement('div'); const a = document.createElement('span'); a.textContent = k; const b = document.createElement('b'); b.textContent = v; r.append(a, b); return r; };
+        tip.replaceChildren(line(F.day(new Date(o.date + 'T00:00:00Z')), ''), ...srcs.filter((s) => o[s]).map((s) => line(s, F.n(o[s]))), line('Trials (all)', F.n(o.trials)), line('Meta spend', F.cad(o.spend)));
+        tip.hidden = false;
+        const [px, py] = d3.pointer(event, el);
+        const tw = tip.offsetWidth;
+        tip.style.left = Math.min(Math.max(0, px + 12), el.clientWidth - tw) + 'px';
+        tip.style.top = Math.max(0, py - 20) + 'px';
+      })
+      .on('pointerleave', () => { tip.hidden = true; });
+  });
+})();
+</script>
+
+<script>
+(() => {
+  const tables = [['lf-source-table', 'source-rows'], ['lf-ad-table', 'ad-rows']];
+  tables.forEach(([id, drawName]) => {
+    document.querySelectorAll('#' + id + ' th[data-field]').forEach((th) => {
+      th.setAttribute('data-sortable', '');
+      th.setAttribute('tabindex', '0');
+      th.setAttribute('aria-sort', 'none');
+      const go = () => {
+        const field = th.getAttribute('data-field');
+        const cur = window.lfSort[id];
+        const textCol = field === 'source' || field === 'name';
+        const first = textCol ? 'asc' : 'desc';
+        const dir = cur && cur.field === field ? (cur.dir === 'desc' ? 'asc' : 'desc') : first;
+        window.lfSort[id] = {field, dir};
+        document.querySelectorAll('#' + id + ' th[data-field]').forEach((h) => {
+          h.setAttribute('aria-sort', h === th ? (dir === 'asc' ? 'ascending' : 'descending') : 'none');
+        });
+        dash.draw(drawName);
+      };
+      th.addEventListener('click', go);
+      th.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); } });
+    });
+  });
+
+  const KEY = 'lam-funnel-ads-hidden';
+  const setHidden = (h) => {
+    document.querySelectorAll('#lf-ads-body').forEach((b) => { b.hidden = h; });
+    document.querySelectorAll('#lf-ads-hide').forEach((b) => { b.hidden = h; });
+    document.querySelectorAll('#lf-ads-show').forEach((b) => { b.hidden = !h; });
+    try { localStorage.setItem(KEY, h ? '1' : '0'); } catch (e) {}
+  };
+  let start = false;
+  try { start = localStorage.getItem(KEY) === '1'; } catch (e) {}
+  if (start) setHidden(true);
+  document.querySelectorAll('#lf-ads-hide').forEach((b) => b.addEventListener('click', () => setHidden(true)));
+  document.querySelectorAll('#lf-ads-show').forEach((b) => b.addEventListener('click', () => setHidden(false)));
+})();
+</script>
+<p class="lf-updated" id="lf-updated">Loading…</p>
+</main>
+<div class="lf-lock" id="lf-lock">
+  <form class="lf-lockbox" id="lf-lockform">
+    <h1>LAM Funnel by Source</h1>
+    <p>Enter the password to view the dashboard.</p>
+    <input type="password" id="lf-pw" autocomplete="current-password" placeholder="Password" aria-label="Password" required>
+    <label class="lf-remember"><input type="checkbox" id="lf-rem"> Remember on this device</label>
+    <button type="submit" class="lf-btn lf-unlock">Open dashboard</button>
+    <p class="lf-err" id="lf-err" hidden>That password didn’t work. Try again.</p>
+  </form>
+</div>
+<script>
+(() => {
+  const b64 = (s) => Uint8Array.from(atob(s), (c) => c.charCodeAt(0));
+  let enc = null;
+  const getEnc = () => enc || (enc = fetch('data.enc.json?t=' + Date.now()).then((r) => r.json()));
+  async function unlock(pw) {
+    const e = await getEnc();
+    const base = await crypto.subtle.importKey('raw', new TextEncoder().encode(pw), 'PBKDF2', false, ['deriveKey']);
+    const key = await crypto.subtle.deriveKey({name: 'PBKDF2', salt: b64(e.salt), iterations: e.iter, hash: 'SHA-256'}, base, {name: 'AES-GCM', length: 256}, false, ['decrypt']);
+    const plain = await crypto.subtle.decrypt({name: 'AES-GCM', iv: b64(e.iv)}, key, b64(e.ct));
+    return JSON.parse(new TextDecoder().decode(plain));
+  }
+  function show(d) {
+    const daily = d.daily.map(([date, s, installs, trials, paid, revenue_usd, spend_cad]) => ({date, source: d.sources[s], installs, trials, paid, revenue_usd, spend_cad}));
+    const paywall = d.paywall.map(([date, paywall_users]) => ({date, paywall_users}));
+    const ads = d.ads.rows.map(([date, a, installs, trials, paid, revenue_usd, spend_cad]) => { const [ad_id, ad, adset, campaign] = d.ads.list[a]; return {date, ad_id, ad, adset, campaign, installs, trials, paid, revenue_usd, spend_cad}; });
+    document.getElementById('lf-lock').hidden = true;
+    document.getElementById('lf-main').hidden = false;
+    document.getElementById('lf-updated').textContent = 'Data updated ' + new Date(d.updated).toLocaleString(undefined, {dateStyle: 'medium', timeStyle: 'short'}) + '. Refreshes about every 6 hours.';
+    dash.__load({daily, paywall, ads});
+  }
+  async function tryPw(pw, remember) {
+    try {
+      const d = await unlock(pw);
+      try { if (remember) localStorage.setItem('lam-funnel-pw', pw); } catch (e) {}
+      show(d); return true;
+    } catch (e) {
+      try { localStorage.removeItem('lam-funnel-pw'); } catch (x) {}
+      return false;
+    }
+  }
+  const form = document.getElementById('lf-lockform');
+  form.addEventListener('submit', async (ev) => {
+    ev.preventDefault();
+    const btn = form.querySelector('button'); btn.disabled = true; btn.textContent = 'Opening…';
+    const ok = await tryPw(document.getElementById('lf-pw').value, document.getElementById('lf-rem').checked);
+    btn.disabled = false; btn.textContent = 'Open dashboard';
+    document.getElementById('lf-err').hidden = ok;
+  });
+  let saved = null; try { saved = localStorage.getItem('lam-funnel-pw'); } catch (e) {}
+  if (saved) tryPw(saved, true);
+  else document.getElementById('lf-pw').focus();
+})();
+</script>
+</body></html>
