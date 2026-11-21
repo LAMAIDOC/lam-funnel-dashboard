@@ -9,10 +9,10 @@
 --cds-font-size-caption:13px;--cds-font-size-body:15px;--cds-font-size-heading:17px;--cds-font-size-title:30px;--cds-font-weight-medium:600;
 --cds-gap-xs:4px;--cds-gap-sm:8px;--cds-gap-md:12px;--cds-gap-lg:20px;--cds-pad-lg:18px;--cds-radius:10px;
 --cds-chart-grid:#eeebe5;--cds-chart-axis:#d6d2c9;--cds-text-secondary:#6b6862;--cds-surface-popover:#ffffff;--cds-border:#e6e3dc;--cds-shadow-popover:0 6px 20px rgba(0,0,0,.12);
---c1:#c96442;--c2:#3b82a0;--c3:#7a9a4a;--c4:#a86cb4;--c5:#d3a33a}
+--color-ok:#2f8a4c;--color-warn:#b7791f;--color-bad:#c0392b;--c1:#c96442;--c2:#3b82a0;--c3:#7a9a4a;--c4:#a86cb4;--c5:#d3a33a}
 @media (prefers-color-scheme: dark){:root{--color-fg:#ecebe7;--color-fg-muted:#a8a49b;--color-bg:#1c1b19;--color-panel:#252421;--color-border-line:#3a3834;
 --cds-chart-grid:#2f2d2a;--cds-chart-axis:#4a4741;--cds-text-secondary:#a8a49b;--cds-surface-popover:#2a2926;--cds-border:#3a3834;--cds-shadow-popover:0 6px 20px rgba(0,0,0,.5);
---c1:#e07a57;--c2:#5aa6c4;--c3:#98b866;--c4:#c48dcf;--c5:#e2b85a}}
+--color-ok:#5cc27d;--color-warn:#e0a84a;--color-bad:#e8695b;--c1:#e07a57;--c2:#5aa6c4;--c3:#98b866;--c4:#c48dcf;--c5:#e2b85a}}
 *{box-sizing:border-box}
 body{margin:0;background:var(--color-bg);color:var(--color-fg);font-family:var(--font-anthropic-sans);font-size:var(--cds-font-size-body);line-height:1.45}
 .lf-page{max-width:1200px;margin:0 auto;padding:24px 16px 48px}
@@ -74,6 +74,13 @@ body{margin:0;background:var(--color-bg);color:var(--color-fg);font-family:var(-
 .lf-table th[aria-sort="ascending"]::after { content: " ↑"; }
 .lf-table th[aria-sort="descending"], .lf-table th[aria-sort="ascending"] { color: var(--color-fg); }
 .lf-cardhead { display: flex; justify-content: space-between; align-items: baseline; gap: var(--cds-gap-sm); }
+.lf-status { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: var(--cds-font-size-caption); white-space: nowrap; }
+.lf-status-on { background: color-mix(in srgb, var(--color-ok) 18%, transparent); color: var(--color-ok); }
+.lf-status-close { background: color-mix(in srgb, var(--color-warn) 18%, transparent); color: var(--color-warn); }
+.lf-status-below { background: color-mix(in srgb, var(--color-bad) 18%, transparent); color: var(--color-bad); }
+.lf-table td.lf-wrap { white-space: normal; min-width: 180px; color: var(--color-fg-muted); }
+#lf-target-table th:nth-child(n+4), #lf-target-table td:nth-child(n+4) { text-align: left; }
+.lf-gap { margin-top: var(--cds-gap-md); margin-bottom: 0; }
 .lf-two { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: var(--cds-gap-lg); }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
@@ -126,15 +133,33 @@ body{margin:0;background:var(--color-bg);color:var(--color-fg);font-family:var(-
   <section class="lf-kpis" id="lf-kpis">
     <div class="lf-card lf-kpi" id="kpi-downloads"><div class="lf-label">Downloads</div><div class="lf-val" data-source="kpis" data-field="installs" data-row="0" data-draw="k-installs">—</div><div class="lf-hint">All sources</div></div>
     <div class="lf-card lf-kpi" id="kpi-trials"><div class="lf-label">Free trials started</div><div class="lf-val" data-source="kpis" data-field="trials" data-row="0" data-draw="k-trials">—</div><div class="lf-hint"><span data-source="kpis" data-field="install_to_trial" data-row="0" data-draw="k-i2t">—</span> of downloads</div></div>
-    <div class="lf-card lf-kpi" id="kpi-paid"><div class="lf-label">Paying customers</div><div class="lf-val" data-source="kpis" data-field="paid" data-row="0" data-draw="k-paid">—</div><div class="lf-hint"><span data-source="kpis" data-field="revenue_usd" data-row="0" data-draw="k-rev">—</span> USD first payments</div></div>
+    <div class="lf-card lf-kpi" id="kpi-paid"><div class="lf-label">Paying customers</div><div class="lf-val" data-source="kpis" data-field="paid" data-row="0" data-draw="k-paid">—</div><div class="lf-hint"><span data-source="kpis" data-field="download_to_paid" data-row="0" data-draw="k-d2p">—</span> of downloads · <span data-source="kpis" data-field="revenue_usd" data-row="0" data-draw="k-rev">—</span> USD</div></div>
     <div class="lf-card lf-kpi" id="kpi-spend"><div class="lf-label">Meta ad spend (CAD)</div><div class="lf-val" data-source="kpis" data-field="spend_cad" data-row="0" data-draw="k-spend">—</div><div class="lf-hint">Only Meta spend is connected</div></div>
     <div class="lf-card lf-kpi" id="kpi-cpt"><div class="lf-label">Meta cost per trial (CAD)</div><div class="lf-val" data-source="kpis" data-field="cost_per_trial_cad" data-row="0" data-draw="k-cpt">—</div><div class="lf-hint">Spend ÷ Meta trials</div></div>
     <div class="lf-card lf-kpi" id="kpi-cpp"><div class="lf-label">Meta cost per paid (CAD)</div><div class="lf-val" data-source="kpis" data-field="cost_per_paid_cad" data-row="0" data-draw="k-cpp">—</div><div class="lf-hint">Spend ÷ Meta paying customers</div></div>
   </section>
 
+  <section class="lf-card" id="lf-targets-card">
+    <h2>Against our targets</h2>
+    <p class="lf-note">Targets from “Free Trial Structure &amp; App Scaling Metrics” (Jake Castillo notes). Paid needs about 7 days after a trial starts, so recent days pull trial → paid and download → paid down.</p>
+    <div class="lf-tablewrap">
+      <table class="lf-table" id="lf-target-table" data-source="targets" data-row-key="metric">
+        <thead><tr>
+          <th data-field="metric">Metric</th>
+          <th data-field="actual">Actual</th>
+          <th data-field="target_label">Target</th>
+          <th data-field="status">Status</th>
+          <th data-field="note">What it means</th>
+        </tr></thead>
+        <tbody data-draw="target-rows"></tbody>
+      </table>
+    </div>
+    <p class="lf-note lf-gap">Not measured yet: App Store page view → install (target 25–30%) needs App Store Connect data, and influencer views → downloads (target 5 per 1,000 views) needs view counts from the creators’ posts.</p>
+  </section>
+
   <section class="lf-card" id="lf-funnel-card">
     <h2>Funnel, all sources</h2>
-    <p class="lf-note">Each step shows its count and the share that made it from the step before. Paywall counts people who saw it each day, so someone who saw it on two days counts twice.</p>
+    <p class="lf-note">Each step shows its count and the share that made it from the step before. “Reached paywall” counts new users who saw the paywall within a day of first opening the app.</p>
     <div class="lf-funnel" data-source="funnel" data-draw="funnel"></div>
   </section>
 
@@ -289,6 +314,7 @@ dash.calc('kpis', {
       revenue_usd: Math.round(s('revenue_usd') * 100) / 100,
       spend_cad,
       install_to_trial: installs ? trials / installs : null,
+      download_to_paid: installs ? paid / installs : null,
       cost_per_trial_cad: spend_cad != null && meta.trials ? spend_cad / meta.trials : null,
       cost_per_paid_cad: spend_cad != null && meta.paid ? spend_cad / meta.paid : null,
     }];
@@ -297,7 +323,7 @@ dash.calc('kpis', {
 
 dash.calc('funnel', {
   title: 'Funnel steps in the chosen dates',
-  description: 'Downloads, paywall viewers (people per day), trials and paying customers, with the share kept from each step.',
+  description: 'Downloads, new users who reached the paywall within a day of first opening the app, trials and paying customers, with the share kept from each step. The paywall share is out of Mixpanel first opens.',
   inputs: ['kpis', 'paywall'],
   fn: (kpis, paywall) => {
     const p = dash.params();
@@ -305,11 +331,13 @@ dash.calc('funnel', {
     const from = p.from || dates[0];
     const to = p.to || dates[dates.length - 1];
     const k = kpis[0] || {};
-    const pw = paywall.filter((r) => r.date >= from && r.date <= to).reduce((a, r) => a + (Number(r.paywall_users) || 0), 0);
-    const steps = [['Downloads', k.installs], ['Saw paywall', pw], ['Started trial', k.trials], ['Paid', k.paid]];
+    const pr = paywall.filter((r) => r.date >= from && r.date <= to);
+    const pw = pr.reduce((a, r) => a + (Number(r.paywall_new) || 0), 0);
+    const opens = pr.reduce((a, r) => a + (Number(r.first_opens) || 0), 0);
+    const steps = [['Downloads', k.installs], ['Reached paywall', pw], ['Started trial', k.trials], ['Paid', k.paid]];
     return steps.map(([step, value], i) => ({
       step, value: value || 0,
-      from_previous: i && steps[i - 1][1] ? (value || 0) / steps[i - 1][1] : null,
+      from_previous: i === 1 ? (opens ? pw / opens : null) : i && steps[i - 1][1] ? (value || 0) / steps[i - 1][1] : null,
     }));
   },
 });
@@ -352,6 +380,24 @@ dash.calc('by_ad', {
   },
 });
 
+dash.calc('targets', {
+  title: 'Funnel metrics against targets',
+  description: 'Each rate in the chosen dates next to the target from the Jake Castillo notes in Notion. Status is on target at or above the target, close within 80% of it, below otherwise.',
+  inputs: ['funnel', 'kpis'],
+  fn: (funnel, kpis) => {
+    const k = kpis[0] || {};
+    const v = (s) => (funnel.find((r) => r.step === s) || {});
+    const rows = [
+      {metric: 'Download → paywall', actual: v('Reached paywall').from_previous, target: 0.75, target_label: '75%', note: 'New users reaching the paywall within a day'},
+      {metric: 'Paywall → trial', actual: v('Reached paywall').value ? k.trials / v('Reached paywall').value : null, target: 0.14, target_label: '14%', note: 'Trials ÷ new users who reached the paywall'},
+      {metric: 'Download → trial', actual: k.installs ? k.trials / k.installs : null, target: 0.10, target_label: '10%', note: 'Median app 6.2%, top 10% of apps 20%'},
+      {metric: 'Trial → paid', actual: k.trials ? k.paid / k.trials : null, target: 0.399, target_label: '39.9%', note: 'Health & Fitness median; top 10% is 68.3%'},
+      {metric: 'Download → paid', actual: k.installs ? k.paid / k.installs : null, target: 0.04, target_label: '4–7%', note: 'The full funnel'},
+    ];
+    return rows.map((r) => ({...r, status: r.actual == null ? 'no data' : r.actual >= r.target ? 'on target' : r.actual >= r.target * 0.8 ? 'close' : 'below'}));
+  },
+});
+
 dash.calc('daily_chart', {
   title: 'Daily downloads by source',
   description: 'One row per day and source in the date range, for the chart.',
@@ -382,6 +428,7 @@ dash.calc('daily_chart', {
   dash.draw('k-trials', (el) => { const k = row0('kpis'); put(el, k ? F.n(k.trials) : null); });
   dash.draw('k-i2t', (el) => { const k = row0('kpis'); put(el, k ? F.pct(k.install_to_trial) : null); });
   dash.draw('k-paid', (el) => { const k = row0('kpis'); put(el, k ? F.n(k.paid) : null); });
+  dash.draw('k-d2p', (el) => { const k = row0('kpis'); put(el, k ? F.pct(k.download_to_paid) : null); });
   dash.draw('k-rev', (el) => { const k = row0('kpis'); put(el, k ? F.usd(k.revenue_usd) : null); });
   dash.draw('k-spend', (el) => { const k = row0('kpis'); put(el, k ? F.cad0(k.spend_cad) : null); });
   dash.draw('k-cpt', (el) => { const k = row0('kpis'); put(el, k ? F.cad(k.cost_per_trial_cad) : null); });
@@ -533,6 +580,26 @@ dash.calc('daily_chart', {
     });
   });
 
+  dash.draw('target-rows', (tb) => {
+    const d = dash.data('targets');
+    tb.replaceChildren();
+    if (d.status !== 'ok' || !d.data) return;
+    d.data.forEach((r) => {
+      const tr = document.createElement('tr');
+      const add = (t, cls) => { const td = document.createElement('td'); td.textContent = t; if (cls) td.className = cls; tr.appendChild(td); return td; };
+      add(r.metric);
+      const a = add(F.pct(r.actual)); a.style.fontWeight = '600';
+      add(r.target_label);
+      const st = add('');
+      const pill = document.createElement('span');
+      pill.className = 'lf-status ' + (r.status === 'on target' ? 'lf-status-on' : r.status === 'close' ? 'lf-status-close' : r.status === 'below' ? 'lf-status-below' : '');
+      pill.textContent = r.status === 'on target' ? 'On target' : r.status === 'close' ? 'Close' : r.status === 'below' ? 'Below' : 'No data';
+      st.appendChild(pill);
+      add(r.note, 'lf-wrap');
+      tb.appendChild(tr);
+    });
+  });
+
   dash.draw('legend', (el) => {
     el.replaceChildren(...window.lfSources.map((s) => {
       const span = document.createElement('span');
@@ -655,7 +722,7 @@ dash.calc('daily_chart', {
   }
   function show(d) {
     const daily = d.daily.map(([date, s, installs, trials, paid, revenue_usd, spend_cad]) => ({date, source: d.sources[s], installs, trials, paid, revenue_usd, spend_cad}));
-    const paywall = d.paywall.map(([date, paywall_users]) => ({date, paywall_users}));
+    const paywall = d.paywall.map(([date, paywall_users, first_opens, paywall_new]) => ({date, paywall_users, first_opens, paywall_new}));
     const ads = d.ads.rows.map(([date, a, installs, trials, paid, revenue_usd, spend_cad]) => { const [ad_id, ad, adset, campaign] = d.ads.list[a]; return {date, ad_id, ad, adset, campaign, installs, trials, paid, revenue_usd, spend_cad}; });
     document.getElementById('lf-lock').hidden = true;
     document.getElementById('lf-main').hidden = false;
