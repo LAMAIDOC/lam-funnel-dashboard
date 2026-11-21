@@ -419,7 +419,7 @@ dash.calc('targets', {
     const rows = [
       {metric: 'Download → paywall', actual: v('Reached paywall').from_previous, target: 0.75, target_label: '75%', note: 'No published industry benchmark. Target is from the Jake Castillo notes.'},
       {metric: 'Paywall → trial', actual: v('Reached paywall').value ? k.trials / v('Reached paywall').value : null, target: 0.14, target_label: '14%', note: 'No published industry benchmark for new users. Target is from the Jake Castillo notes.'},
-      {metric: 'Download → trial', actual: k.installs ? k.trials / k.installs : null, target: 0.10, target_label: '10%', note: 'Health & Fitness median 6.9%, top 25% over 23%. North America median 7.1%.'},
+      {metric: 'Download → trial', actual: k.installs ? k.trials / k.installs : null, target: 0.10, target_label: '10%', note: 'Health & Fitness median 6.9%. North America median 7.1%.'},
       {metric: 'Trial → paid', actual: k.trials ? k.paid / k.trials : null, target: 0.399, target_label: '39.9%', note: 'Health & Fitness median 37.7%, top 25% 51.4%. North America median 34.2%.'},
       {metric: 'Download → paid', actual: k.installs ? k.paid / k.installs : null, target: 0.04, target_label: '4–7%', note: 'Health & Fitness median 2.9%, top 25% 6.2% (paid within 35 days of download).'},
     ];
