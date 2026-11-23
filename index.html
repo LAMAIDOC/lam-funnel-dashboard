@@ -78,6 +78,11 @@ body{margin:0;background:var(--color-bg);color:var(--color-fg);font-family:var(-
 .lf-status-on { background: color-mix(in srgb, var(--color-ok) 18%, transparent); color: var(--color-ok); }
 .lf-status-close { background: color-mix(in srgb, var(--color-warn) 18%, transparent); color: var(--color-warn); }
 .lf-status-below { background: color-mix(in srgb, var(--color-bad) 18%, transparent); color: var(--color-bad); }
+.lf-sub { font-size: var(--cds-font-size-body); font-weight: var(--cds-font-weight-medium); margin: var(--cds-gap-lg) 0 var(--cds-gap-xs); }
+.lf-hist { display: grid; grid-template-columns: 120px 1fr; gap: 6px 12px; align-items: center; max-width: 620px; margin-top: var(--cds-gap-sm); }
+.lf-hist .lf-hl { color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); }
+.lf-hist .lf-hb { display: flex; align-items: center; gap: 8px; font-variant-numeric: tabular-nums; }
+.lf-hist .lf-hb i { display: inline-block; height: 16px; border-radius: 3px; min-width: 0; }
 .lf-table td.lf-wrap { white-space: normal; min-width: 180px; color: var(--color-fg-muted); }
 #lf-target-table th:nth-child(n+4), #lf-target-table td:nth-child(n+4) { text-align: left; }
 .lf-kpis-sm { margin-bottom: var(--cds-gap-md); }
@@ -142,7 +147,7 @@ body{margin:0;background:var(--color-bg);color:var(--color-fg);font-family:var(-
     <div class="lf-card lf-kpi" id="kpi-downloads"><div class="lf-label">Downloads</div><div class="lf-val" data-source="kpis" data-field="installs" data-row="0" data-draw="k-installs">—</div><div class="lf-hint">All sources</div></div>
     <div class="lf-card lf-kpi" id="kpi-trials"><div class="lf-label">Free trials started</div><div class="lf-val" data-source="kpis" data-field="trials" data-row="0" data-draw="k-trials">—</div><div class="lf-hint"><span data-source="kpis" data-field="install_to_trial" data-row="0" data-draw="k-i2t">—</span> of downloads</div></div>
     <div class="lf-card lf-kpi" id="kpi-paid"><div class="lf-label">Paying customers</div><div class="lf-val" data-source="kpis" data-field="paid" data-row="0" data-draw="k-paid">—</div><div class="lf-hint"><span data-source="kpis" data-field="download_to_paid" data-row="0" data-draw="k-d2p">—</span> of downloads</div></div>
-    <div class="lf-card lf-kpi" id="kpi-revenue"><div class="lf-label">Total revenue (USD)</div><div class="lf-val" data-source="kpis" data-field="revenue_usd" data-row="0" data-draw="k-rev">—</div><div class="lf-hint">First payments, gross, live only</div></div>
+    <div class="lf-card lf-kpi" id="kpi-revenue"><div class="lf-label">Total revenue (USD)</div><div class="lf-val" data-source="kpis" data-field="revenue_usd" data-row="0" data-draw="k-rev">—</div><div class="lf-hint">After refunds, before Apple’s cut</div></div>
     <div class="lf-card lf-kpi" id="kpi-spend"><div class="lf-label">Meta ad spend (USD)</div><div class="lf-val" data-source="kpis" data-field="spend_usd" data-row="0" data-draw="k-spend">—</div><div class="lf-hint">Only Meta spend is connected</div></div>
     <div class="lf-card lf-kpi" id="kpi-cpt"><div class="lf-label">Meta cost per trial (USD)</div><div class="lf-val" data-source="kpis" data-field="cost_per_trial_usd" data-row="0" data-draw="k-cpt">—</div><div class="lf-hint">Spend ÷ Meta trials</div></div>
     <div class="lf-card lf-kpi" id="kpi-cpp"><div class="lf-label">Meta cost per paid (USD)</div><div class="lf-val" data-source="kpis" data-field="cost_per_paid_usd" data-row="0" data-draw="k-cpp">—</div><div class="lf-hint">Spend ÷ Meta paying customers</div></div>
@@ -188,7 +193,7 @@ body{margin:0;background:var(--color-bg);color:var(--color-fg);font-family:var(-
 
   <section class="lf-card" id="lf-plans-card">
     <h2>Monthly vs annual, and cancellations</h2>
-    <p class="lf-note">Paying customers by plan, and who cancelled in the chosen dates. A cancellation means auto-renew was turned off (or a refund): the person keeps access until their period ends. A cancellation can belong to someone who paid before these dates.</p>
+    <p class="lf-note">Paying customers by plan, and who cancelled in the chosen dates. A cancellation means auto-renew was turned off (or a refund): the person keeps access until their period ends. Paid cancellations count people (a refund is one cancellation, not two), and can belong to someone who paid before these dates.</p>
     <div class="lf-kpis lf-kpis-sm">
       <div class="lf-kpi" id="kpi-annual-share"><div class="lf-label">Annual share of paid</div><div class="lf-val" data-source="plan_mix" data-field="share" data-where="plan=Annual" data-draw="p-annual">—</div></div>
       <div class="lf-kpi" id="kpi-trial-cancel"><div class="lf-label">Trials cancelled</div><div class="lf-val" data-source="cancel_kpis" data-field="trial_cancels" data-row="0" data-draw="p-tc">—</div><div class="lf-hint"><span data-source="cancel_kpis" data-field="trial_cancel_rate" data-row="0" data-draw="p-tcr">—</span> of trials started</div></div>
@@ -208,6 +213,69 @@ body{margin:0;background:var(--color-bg);color:var(--color-fg);font-family:var(-
     </div>
   </section>
 
+  <section class="lf-card" id="lf-afterpay-card">
+    <h2>After they pay: how long they stay and what they bring in</h2>
+    <p class="lf-note">People who first paid in the chosen dates, counted per person. “Turned off auto-renew” means they keep access until their paid period ends, then stop. Refunds are taken out of revenue. With few payers, read the counts, not just the percentages.</p>
+    <div class="lf-kpis lf-kpis-sm">
+      <div class="lf-kpi"><div class="lf-label">Revenue after refunds (USD)</div><div class="lf-val" data-source="after_pay_kpis" data-field="kept_usd" data-row="0" data-draw="ap-kept">—</div><div class="lf-hint" data-draw="ap-kept-hint">—</div></div>
+      <div class="lf-kpi"><div class="lf-label">Revenue per paying customer</div><div class="lf-val" data-source="after_pay_kpis" data-field="per_payer_usd" data-row="0" data-draw="ap-per">—</div><div class="lf-hint" data-draw="ap-per-hint">—</div></div>
+      <div class="lf-kpi"><div class="lf-label">Monthly payers still renewing</div><div class="lf-val" data-source="after_pay_kpis" data-field="monthly_renewing" data-row="0" data-draw="ap-mr">—</div><div class="lf-hint" data-draw="ap-mr-hint">—</div></div>
+      <div class="lf-kpi"><div class="lf-label">Annual payers still renewing</div><div class="lf-val" data-source="after_pay_kpis" data-field="annual_renewing" data-row="0" data-draw="ap-ar">—</div><div class="lf-hint" data-draw="ap-ar-hint">—</div></div>
+      <div class="lf-kpi"><div class="lf-label">Typical time to cancel</div><div class="lf-val" data-source="after_pay_kpis" data-field="median_days_to_off" data-row="0" data-draw="ap-med">—</div><div class="lf-hint">Median days after first payment</div></div>
+    </div>
+
+    <h3 class="lf-sub">Where paying customers are now</h3>
+    <div class="lf-tablewrap">
+      <table class="lf-table" id="lf-ap-table" data-source="after_pay" data-row-key="plan">
+        <thead><tr>
+          <th data-field="plan">Plan</th>
+          <th data-field="paid">Paid</th>
+          <th data-field="renewing">Still set to renew</th>
+          <th data-field="off">Turned off auto-renew</th>
+          <th data-field="refunded">Refunded</th>
+          <th data-field="renewed">Renewed at least once</th>
+        </tr></thead>
+        <tbody data-draw="ap-rows"></tbody>
+      </table>
+    </div>
+
+    <h3 class="lf-sub">How soon they turn off auto-renew</h3>
+    <p class="lf-note">Days from first payment. The earliest warning sign: watch it when testing paywalls and prices.</p>
+    <div class="lf-hist" data-source="cancel_timing" data-draw="ap-hist"></div>
+
+    <h3 class="lf-sub">How many months monthly payers keep paying</h3>
+    <p class="lf-note">Grouped by the month they first paid. A month counts only once its billing date has passed.</p>
+    <div class="lf-tablewrap">
+      <table class="lf-table" id="lf-cohort-table" data-source="monthly_cohorts" data-row-key="month">
+        <thead><tr>
+          <th data-field="month">First paid in</th>
+          <th data-field="payers">Payers</th>
+          <th data-field="m2">Paid month 2</th>
+          <th data-field="m3">Paid month 3</th>
+          <th data-field="m6">Paid month 6</th>
+        </tr></thead>
+        <tbody data-draw="cohort-rows"></tbody>
+      </table>
+    </div>
+
+    <h3 class="lf-sub">What each paying customer brought in (lifetime value so far)</h3>
+    <div class="lf-tablewrap">
+      <table class="lf-table" id="lf-ltv-table" data-source="after_pay" data-row-key="plan">
+        <thead><tr>
+          <th data-field="plan">Plan</th>
+          <th data-field="paid">Payers</th>
+          <th data-field="charged_usd">Charged</th>
+          <th data-field="refunded_usd">Refunded</th>
+          <th data-field="kept_usd">Kept</th>
+          <th data-field="per_payer_usd">Per payer</th>
+          <th data-field="months_avg">Months paid, average</th>
+        </tr></thead>
+        <tbody data-draw="ltv-rows"></tbody>
+      </table>
+    </div>
+    <p class="lf-note lf-gap">Gross, before Apple’s cut. Annual is paid up front for 12 months. A projected lifetime value (price ÷ monthly churn) will be added once 3 months of renewals exist, marked as an estimate.</p>
+  </section>
+
   <section class="lf-card" id="lf-funnel-card">
     <h2>Funnel, all sources</h2>
     <p class="lf-note">Each step shows its count and the share that made it from the step before. “Reached paywall” counts new users who saw the paywall within a day of first opening the app.</p>
@@ -216,7 +284,7 @@ body{margin:0;background:var(--color-bg);color:var(--color-fg);font-family:var(-
 
   <section class="lf-card" id="lf-source-card">
     <h2>Funnel and cost by source</h2>
-    <p class="lf-note">Click a column title to sort, highest first; click again for lowest first. Paywall views can’t be split by source yet, because the app sends paywall events to Mixpanel only. Cost columns cover Meta, the only ad spend connected.</p>
+    <p class="lf-note">Click a column title to sort, highest first; click again for lowest first. Paywall views can’t be split by source yet, because the app sends paywall events to Mixpanel only. Cost columns cover Meta, the only ad spend connected. Revenue by source is before refunds.</p>
     <div class="lf-tablewrap">
       <table class="lf-table" id="lf-source-table" data-source="by_source" data-row-key="source">
         <thead><tr>
@@ -284,10 +352,11 @@ body{margin:0;background:var(--color-bg);color:var(--color-fg);font-family:var(-
       <li>Downloads, trials and paid by source come from AppsFlyer, by the day the event happened (UTC).</li>
       <li>AppsFlyer also receives Apple test (sandbox) purchases, and they land under Organic. To remove them, totals for trials, paid and revenue come from Mixpanel live (production) events, and Organic is the total minus the paid sources.</li>
       <li>Because the two tools can date the same purchase a day apart, Organic on a single day can look off. It evens out over a week or more.</li>
-      <li>Paid means a first payment: a trial that converted or a direct purchase. Renewals aren’t counted. Promo (free) accounts are left out.</li>
+      <li>Paid means a first payment: a trial that converted or a direct purchase. Promo (free) accounts are left out. Total revenue at the top takes out refunds; revenue by source and by ad does not.</li>
+      <li>“After they pay” follows each paid subscription through RevenueCat’s live events: renewals, auto-renew turned off or back on, refunds (a cancellation with negative revenue) and expiry. One payment made before tracking started (Oct 9) is not in it.</li>
       <li>Trial → paid compares people who paid in the period with people who started a trial in it. Trials take 7 days to convert, so recent trials haven’t had the chance yet.</li>
       <li>“Organic / untracked” means the download came without a tracked ad or link: App Store search, our own social posts, influencers without a tracked link, word of mouth, and some team installs. It did not rise when Meta spend rose, so few Meta ad downloads are hiding in it.</li>
-      <li>All money is in USD. Meta spend is converted from Meta’s account currency at one fixed rate per month: the Bank of Canada average of the month before (October 2026: 1.3962, November 2026: 1.4135). Revenue is Apple’s gross, before Apple’s cut.</li>
+      <li>Everything is in USD. Meta bills in CAD, so each day’s Meta spend is turned into USD at one fixed rate per month: the Bank of Canada average of the month before (see Exchange rates in Sources). Revenue is Apple’s gross in USD, before Apple’s cut.</li>
     </ul>
   </details>
 </div>
@@ -313,15 +382,38 @@ window.lfSorted = (tableId, rows) => {
 window.lfFmt = {
   n: d3.format(','),
   pct: (v) => v == null || !isFinite(v) ? '—' : d3.format('.1%')(v),
+  pct0: (v) => v == null || !isFinite(v) ? '—' : d3.format('.0%')(v),
   usd: (v) => v == null || !isFinite(v) ? '—' : '$' + d3.format(',.2f')(v),
   usd0: (v) => v == null || !isFinite(v) ? '—' : '$' + d3.format(',.0f')(v),
   day: d3.utcFormat('%b %-d'),
 };
 
+dash.calc('daily_usd', {
+  title: 'Daily funnel by source, spend in USD',
+  description: 'Meta bills in CAD. Each day\u2019s spend is turned into USD at that month\u2019s fixed rate (the Bank of Canada average of the month before); a month with no rate yet uses the latest one.',
+  inputs: ['daily', 'fx'],
+  fn: (daily, fx) => {
+    const rates = fx.slice().sort((a, b) => a.month < b.month ? -1 : 1);
+    const rateFor = (date) => { const m = String(date).slice(0, 7); let r = null; for (const x of rates) if (x.month <= m) r = Number(x.cad_per_usd); return r || (rates[0] ? Number(rates[0].cad_per_usd) : null); };
+    return daily.map(({spend_cad, ...r}) => ({...r, spend_usd: spend_cad == null ? null : Math.round(Number(spend_cad) / rateFor(r.date) * 100) / 100}));
+  },
+});
+
+dash.calc('ads_usd', {
+  title: 'Daily Meta results by ad, spend in USD',
+  description: 'Each day\u2019s Meta spend turned from CAD into USD at that month\u2019s fixed rate (the Bank of Canada average of the month before); a month with no rate yet uses the latest one.',
+  inputs: ['ads', 'fx'],
+  fn: (ads, fx) => {
+    const rates = fx.slice().sort((a, b) => a.month < b.month ? -1 : 1);
+    const rateFor = (date) => { const m = String(date).slice(0, 7); let r = null; for (const x of rates) if (x.month <= m) r = Number(x.cad_per_usd); return r || (rates[0] ? Number(rates[0].cad_per_usd) : null); };
+    return ads.map(({spend_cad, ...r}) => ({...r, spend_usd: spend_cad == null ? null : Math.round(Number(spend_cad) / rateFor(r.date) * 100) / 100}));
+  },
+});
+
 dash.calc('by_source', {
   title: 'Funnel and cost by source, in the chosen dates',
   description: 'Adds up the daily rows in the date range per source. Organic can’t go below zero.',
-  inputs: ['daily'],
+  inputs: ['daily_usd'],
   fn: (daily) => {
     const p = dash.params();
     const dates = daily.map((r) => r.date).sort();
@@ -355,15 +447,18 @@ dash.calc('by_source', {
 dash.calc('kpis', {
   title: 'Totals in the chosen dates',
   description: 'All sources added up; cost figures use Meta spend over Meta trials and paying customers.',
-  inputs: ['by_source'],
-  fn: (by_source) => {
+  inputs: ['by_source', 'subs'],
+  fn: (by_source, subs) => {
     const s = (k) => by_source.reduce((a, r) => a + (Number(r[k]) || 0), 0);
+    const p = dash.params();
+    const refunds = subs.filter((r) => (!p.from || r.first_paid >= p.from) && (!p.to || r.first_paid <= p.to)).reduce((a, r) => a + (Number(r.refunded_usd) || 0), 0);
     const meta = by_source.find((r) => r.source === 'Meta ads') || {};
     const installs = s('installs'), trials = s('trials'), paid = s('paid');
     const spend_usd = meta.spend_usd ?? null;
     return [{
       installs, trials, paid,
-      revenue_usd: Math.round(s('revenue_usd') * 100) / 100,
+      revenue_usd: Math.max(0, Math.round((s('revenue_usd') - refunds) * 100) / 100),
+      revenue_gross_usd: Math.round(s('revenue_usd') * 100) / 100,
       spend_usd,
       install_to_trial: installs ? trials / installs : null,
       download_to_paid: installs ? paid / installs : null,
@@ -397,7 +492,7 @@ dash.calc('funnel', {
 dash.calc('by_ad', {
   title: 'Meta ads by campaign, ad set or ad, in the chosen dates',
   description: 'Adds up the daily per-ad rows in the date range at the chosen level, for the chosen campaign; sorted by spend.',
-  inputs: ['ads'],
+  inputs: ['ads_usd'],
   fn: (ads) => {
     const p = dash.params();
     const dates = ads.map((r) => r.date).sort();
@@ -454,9 +549,9 @@ dash.calc('targets', {
 
 dash.calc('plan_mix', {
   title: 'Paid and cancellations by plan, in the chosen dates',
-  description: 'Adds up the daily plan rows in the date range: new paying customers, paid cancellations and trial cancellations for the monthly and annual plans.',
-  inputs: ['plans'],
-  fn: (plans) => {
+  description: 'Adds up the daily plan rows in the date range: new paying customers and trial cancellations for the monthly and annual plans. Paid cancellations count people who turned off auto-renew (or were refunded) in the dates, from the subscriptions list.',
+  inputs: ['plans', 'subs'],
+  fn: (plans, subs) => {
     const p = dash.params();
     const dates = plans.map((r) => r.date).sort();
     const from = p.from || dates[0];
@@ -467,7 +562,8 @@ dash.calc('plan_mix', {
     return ['Monthly', 'Annual'].map((plan) => {
       const rows = keep.filter((r) => r.plan === plan);
       const paid = sum(rows, 'paid');
-      return {plan, paid, share: allPaid ? paid / allPaid : null, paid_cancels: sum(rows, 'paid_cancels'), trial_cancels: sum(rows, 'trial_cancels')};
+      const paid_cancels = subs.filter((r) => r.plan === plan && r.off_date && r.off_date >= from && r.off_date <= to).length;
+      return {plan, paid, share: allPaid ? paid / allPaid : null, paid_cancels, trial_cancels: sum(rows, 'trial_cancels')};
     });
   },
 });
@@ -494,8 +590,8 @@ window.lfCmpDefault = (dates) => {
 dash.calc('compare', {
   title: 'Period A against period B',
   description: 'Funnel rates for two date ranges side by side. Each rate is tested with a two-proportion z-test; a change counts as better or worse only at 95% confidence. Default: last 14 days (B) against the 14 days before (A).',
-  inputs: ['daily', 'paywall'],
-  fn: (daily, paywall) => {
+  inputs: ['daily_usd', 'paywall', 'subs'],
+  fn: (daily, paywall, subs) => {
     const p = dash.params();
     const dates = daily.map((r) => r.date).sort();
     const def = window.lfCmpDefault(dates);
@@ -509,7 +605,7 @@ dash.calc('compare', {
       const meta = d.filter((r) => r.source === 'Meta ads');
       return {
         installs: s(d, 'installs'), trials: Math.max(0, s(d, 'trials')), paid: Math.max(0, s(d, 'paid')),
-        revenue: Math.max(0, s(d, 'revenue_usd')), opens: s(pw, 'first_opens'), pw: s(pw, 'paywall_new'),
+        revenue: Math.max(0, s(d, 'revenue_usd') - s(subs.filter((r) => r.first_paid >= f && r.first_paid <= t), 'refunded_usd')), opens: s(pw, 'first_opens'), pw: s(pw, 'paywall_new'),
         spend: s(meta, 'spend_usd'), metaTrials: Math.max(0, s(meta, 'trials')),
       };
     };
@@ -528,7 +624,7 @@ dash.calc('compare', {
       {metric: 'Download → trial', kind: 'pct', a: rate(A.trials, A.installs), b: rate(B.trials, B.installs), z: z(A.trials, A.installs, B.trials, B.installs)},
       {metric: 'Trial → paid', kind: 'pct', a: rate(A.paid, A.trials), b: rate(B.paid, B.trials), z: z(A.paid, A.trials, B.paid, B.trials)},
       {metric: 'Download → paid', kind: 'pct', a: rate(A.paid, A.installs), b: rate(B.paid, B.installs), z: z(A.paid, A.installs, B.paid, B.installs)},
-      {metric: 'Revenue per download (USD)', kind: 'usd', a: rate(A.revenue, A.installs), b: rate(B.revenue, B.installs)},
+      {metric: 'Revenue per download, after refunds (USD)', kind: 'usd', a: rate(A.revenue, A.installs), b: rate(B.revenue, B.installs)},
       {metric: 'Meta cost per trial (USD)', kind: 'usd', lowerBetter: true, a: rate(A.spend, A.metaTrials), b: rate(B.spend, B.metaTrials)},
     ];
     return rows.map((r) => {
@@ -540,10 +636,107 @@ dash.calc('compare', {
   },
 });
 
+window.lfAddMonths = (iso, n) => {
+  const d = new Date(iso + 'T00:00:00Z'); const day = d.getUTCDate();
+  d.setUTCDate(1); d.setUTCMonth(d.getUTCMonth() + n);
+  const last = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + 1, 0)).getUTCDate();
+  d.setUTCDate(Math.min(day, last));
+  return d.toISOString().slice(0, 10);
+};
+window.lfToday = () => new Date().toISOString().slice(0, 10);
+
+dash.calc('subs_in_range', {
+  title: 'Paying customers who first paid in the chosen dates',
+  description: 'The subscriptions list, kept to people whose first payment falls in the date range.',
+  inputs: ['subs'],
+  fn: (subs) => {
+    const p = dash.params();
+    return subs.filter((r) => (!p.from || r.first_paid >= p.from) && (!p.to || r.first_paid <= p.to));
+  },
+});
+
+dash.calc('after_pay', {
+  title: 'Paying customers by plan: where they are now and what they brought in',
+  description: 'Per plan and both together: still renewing, auto-renew turned off (including ended), refunded, renewed at least once (out of those whose first renewal date has passed), money charged, refunded and kept, kept per payer, and average months paid (a refunded payment counts as none; annual counts as 12).',
+  inputs: ['subs_in_range'],
+  fn: (subs) => {
+    const today = window.lfToday();
+    const one = (plan, rows) => {
+      const sum = (k) => rows.reduce((a, r) => a + (Number(r[k]) || 0), 0);
+      const due = rows.filter((r) => r.status !== 'refunded' && window.lfAddMonths(r.first_paid, r.plan === 'Annual' ? 12 : 1) <= today);
+      const charged = sum('charged_usd'), refunded = sum('refunded_usd'), kept = charged - refunded;
+      const months = rows.reduce((a, r) => a + (Number(r.payments_kept) || 0) * (r.plan === 'Annual' ? 12 : 1), 0);
+      return {
+        plan, paid: rows.length,
+        renewing: rows.filter((r) => r.status === 'renewing').length,
+        off: rows.filter((r) => r.status === 'off' || r.status === 'ended').length,
+        refunded: rows.filter((r) => r.status === 'refunded').length,
+        renewal_due: due.length, renewed: due.filter((r) => r.payments >= 2).length,
+        first_due: rows.length ? rows.map((r) => window.lfAddMonths(r.first_paid, r.plan === 'Annual' ? 12 : 1)).sort()[0] : null,
+        charged_usd: Math.round(charged * 100) / 100, refunded_usd: Math.round(refunded * 100) / 100, kept_usd: Math.round(kept * 100) / 100,
+        per_payer_usd: rows.length ? kept / rows.length : null,
+        months_avg: rows.length ? months / rows.length : null,
+      };
+    };
+    return [one('Monthly', subs.filter((r) => r.plan === 'Monthly')), one('Annual', subs.filter((r) => r.plan === 'Annual')), one('Both', subs)];
+  },
+});
+
+dash.calc('after_pay_kpis', {
+  title: 'After they pay: headline numbers',
+  description: 'Revenue kept after refunds, kept per paying customer, monthly and annual payers still set to renew, and the median days from first payment to turning off auto-renew.',
+  inputs: ['after_pay', 'subs_in_range'],
+  fn: (ap, subs) => {
+    const by = (p) => ap.find((r) => r.plan === p) || {};
+    const days = subs.map((r) => r.days_to_off).filter((v) => v != null).sort((a, b) => a - b);
+    const med = days.length ? (days.length % 2 ? days[(days.length - 1) / 2] : (days[days.length / 2 - 1] + days[days.length / 2]) / 2) : null;
+    const b = by('Both'), m = by('Monthly'), a = by('Annual');
+    return [{
+      kept_usd: b.kept_usd, charged_usd: b.charged_usd, refunded_usd: b.refunded_usd, payers: b.paid, per_payer_usd: b.per_payer_usd,
+      monthly_renewing: m.renewing, monthly_paid: m.paid, annual_renewing: a.renewing, annual_paid: a.paid,
+      median_days_to_off: med, cancellers: days.length,
+    }];
+  },
+});
+
+dash.calc('cancel_timing', {
+  title: 'Days from first payment to turning off auto-renew',
+  description: 'People who first paid in the dates, grouped by how many days after their first payment they turned off auto-renew (refunds included); the last row is people still set to renew.',
+  inputs: ['subs_in_range'],
+  fn: (subs) => {
+    const b = [['Same day', 0, 0], ['1–3 days', 1, 3], ['4–7 days', 4, 7], ['8–30 days', 8, 30], ['Over 30 days', 31, 1e9]];
+    const rows = b.map(([label, lo, hi]) => ({bucket: label, people: subs.filter((r) => r.days_to_off != null && r.days_to_off >= lo && r.days_to_off <= hi).length, kind: 'off'}));
+    rows.push({bucket: 'Still renewing', people: subs.filter((r) => r.status === 'renewing').length, kind: 'on'});
+    return rows;
+  },
+});
+
+dash.calc('monthly_cohorts', {
+  title: 'Monthly payers: payments kept up, by month of first payment',
+  description: 'For each month people first paid a monthly plan: how many made their 2nd, 3rd and 6th payment, out of those whose billing date for that payment has passed. Refunded people are left out of the payment counts.',
+  inputs: ['subs_in_range'],
+  fn: (subs) => {
+    const today = window.lfToday();
+    const m = subs.filter((r) => r.plan === 'Monthly');
+    const months = [...new Set(m.map((r) => r.first_paid.slice(0, 7)))].sort();
+    return months.map((mo) => {
+      const rows = m.filter((r) => r.first_paid.slice(0, 7) === mo);
+      const live = rows.filter((r) => r.status !== 'refunded');
+      const step = (k) => {
+        const dueDates = live.map((r) => window.lfAddMonths(r.first_paid, k - 1)).sort();
+        const due = live.filter((r) => window.lfAddMonths(r.first_paid, k - 1) <= today);
+        return {due: due.length, paid: due.filter((r) => r.payments >= k).length, next: dueDates.length ? [dueDates[0], dueDates[dueDates.length - 1]] : null};
+      };
+      const s2 = step(2), s3 = step(3), s6 = step(6);
+      return {month: mo, payers: rows.length, m2_paid: s2.paid, m2_due: s2.due, m2_next: s2.next, m3_paid: s3.paid, m3_due: s3.due, m3_next: s3.next, m6_paid: s6.paid, m6_due: s6.due, m6_next: s6.next};
+    });
+  },
+});
+
 dash.calc('daily_chart', {
   title: 'Daily downloads by source',
   description: 'One row per day and source in the date range, for the chart.',
-  inputs: ['daily'],
+  inputs: ['daily_usd'],
   fn: (daily) => {
     const p = dash.params();
     const dates = daily.map((r) => r.date).sort();
@@ -678,7 +871,7 @@ dash.calc('daily_chart', {
     });
     if (k) {
       const tr = document.createElement('tr'); tr.className = 'lf-total'; tr.dataset.key = '__total';
-      ['All sources', F.n(k.installs), F.n(k.trials), F.pct(k.install_to_trial), F.n(k.paid), F.pct(k.trials ? k.paid / k.trials : null), F.usd(k.revenue_usd), F.usd(k.spend_usd), '', '', '']
+      ['All sources', F.n(k.installs), F.n(k.trials), F.pct(k.install_to_trial), F.n(k.paid), F.pct(k.trials ? k.paid / k.trials : null), F.usd(k.revenue_gross_usd), F.usd(k.spend_usd), '', '', '']
         .forEach((t) => cell(tr, t));
       tb.appendChild(tr);
     }
@@ -763,6 +956,78 @@ dash.calc('daily_chart', {
     const tr = document.createElement('tr'); tr.className = 'lf-total'; tr.dataset.key = '__total';
     ['Both plans', F.n(s('paid')), '', F.n(s('paid_cancels')), F.n(s('trial_cancels'))].forEach((t) => cell(tr, t));
     tb.appendChild(tr);
+  });
+
+  const xofy = (x, y) => y ? x + ' of ' + y : '—';
+  dash.draw('ap-kept', (el) => { const k = row0('after_pay_kpis'); put(el, k ? F.usd0(k.kept_usd) : null); });
+  dash.draw('ap-kept-hint', (el) => { const k = row0('after_pay_kpis'); put(el, k ? F.usd0(k.charged_usd) + ' charged − ' + F.usd0(k.refunded_usd) + ' refunded' : null); });
+  dash.draw('ap-per', (el) => { const k = row0('after_pay_kpis'); put(el, k ? F.usd0(k.per_payer_usd) : null); });
+  dash.draw('ap-per-hint', (el) => { const k = row0('after_pay_kpis'); put(el, k ? F.n(k.payers) + (k.payers === 1 ? ' person' : ' people') + ' who paid in these dates' : null); });
+  dash.draw('ap-mr', (el) => { const k = row0('after_pay_kpis'); put(el, k && k.monthly_paid ? xofy(k.monthly_renewing, k.monthly_paid) : null); });
+  dash.draw('ap-mr-hint', (el) => { const k = row0('after_pay_kpis'); put(el, k && k.monthly_paid ? F.pct0(k.monthly_renewing / k.monthly_paid) : null); });
+  dash.draw('ap-ar', (el) => { const k = row0('after_pay_kpis'); put(el, k && k.annual_paid ? xofy(k.annual_renewing, k.annual_paid) : null); });
+  dash.draw('ap-ar-hint', (el) => { const k = row0('after_pay_kpis'); put(el, k && k.annual_paid ? F.pct0(k.annual_renewing / k.annual_paid) : null); });
+  dash.draw('ap-med', (el) => { const k = row0('after_pay_kpis'); put(el, k && k.median_days_to_off != null ? (k.median_days_to_off === 1 ? '1 day' : d3.format('.1~f')(k.median_days_to_off) + ' days') : null); });
+  const mon = d3.utcFormat('%b %Y'), dmon = d3.utcFormat('%b %-d, %Y');
+  const pd = (s) => new Date(s + 'T00:00:00Z');
+  dash.draw('ap-rows', (tb) => {
+    const d = dash.data('after_pay');
+    tb.replaceChildren();
+    if (d.status !== 'ok' || !d.data) return;
+    d.data.forEach((r) => {
+      const tr = document.createElement('tr'); if (r.plan === 'Both') { tr.className = 'lf-total'; tr.dataset.key = '__total'; }
+      const renewed = r.renewal_due ? xofy(r.renewed, r.renewal_due) + ' due' : (r.paid ? 'first due ' + mon(pd(r.first_due)) : '—');
+      [r.plan, F.n(r.paid), F.n(r.renewing), F.n(r.off), F.n(r.refunded), renewed].forEach((t, i) => { const td = document.createElement('td'); td.textContent = t; if (i === 5 && !r.renewal_due) td.className = 'lf-dash'; tr.appendChild(td); });
+      tb.appendChild(tr);
+    });
+  });
+  dash.draw('ap-hist', (el) => {
+    const d = dash.data('cancel_timing');
+    el.replaceChildren();
+    if (d.status !== 'ok' || !d.data) return;
+    const max = Math.max(1, ...d.data.map((r) => r.people));
+    d.data.forEach((r) => {
+      const l = document.createElement('span'); l.className = 'lf-hl'; l.textContent = r.bucket;
+      const b = document.createElement('span'); b.className = 'lf-hb';
+      const bar = document.createElement('i');
+      bar.style.width = (r.people / max * 70) + '%';
+      bar.style.background = r.kind === 'on' ? 'var(--color-ok)' : (r.bucket === 'Same day' || r.bucket === '1–3 days') ? 'var(--color-bad)' : 'var(--color-warn)';
+      if (!r.people) bar.style.display = 'none';
+      b.append(bar, document.createTextNode(F.n(r.people)));
+      el.append(l, b);
+    });
+  });
+  dash.draw('cohort-rows', (tb) => {
+    const d = dash.data('monthly_cohorts');
+    tb.replaceChildren();
+    if (d.status !== 'ok' || !d.data) return;
+    if (!d.data.length) { const tr = document.createElement('tr'); const td = document.createElement('td'); td.colSpan = 5; td.className = 'lf-dash'; td.textContent = 'No monthly payers in these dates.'; tr.appendChild(td); tb.appendChild(tr); return; }
+    const short = d3.utcFormat('%b %-d');
+    d.data.forEach((r) => {
+      const tr = document.createElement('tr');
+      const cell = (t, muted) => { const td = document.createElement('td'); td.textContent = t; if (muted) td.className = 'lf-dash'; tr.appendChild(td); };
+      cell(mon(pd(r.month + '-01'))); cell(F.n(r.payers));
+      [['m2', 2], ['m3', 3], ['m6', 6]].forEach(([k]) => {
+        const due = r[k + '_due'], paid = r[k + '_paid'], next = r[k + '_next'];
+        if (due) cell(xofy(paid, due) + ' (' + F.pct0(paid / due) + ')');
+        else if (next && k === 'm2') cell('not due yet (' + (next[0] === next[1] ? short(pd(next[0])) : short(pd(next[0])) + '–' + short(pd(next[1]))) + ')', true);
+        else cell('—', true);
+      });
+      tb.appendChild(tr);
+    });
+  });
+  dash.draw('ltv-rows', (tb) => {
+    const d = dash.data('after_pay');
+    tb.replaceChildren();
+    if (d.status !== 'ok' || !d.data) return;
+    d.data.forEach((r) => {
+      const tr = document.createElement('tr'); if (r.plan === 'Both') { tr.className = 'lf-total'; tr.dataset.key = '__total'; }
+      const months = r.plan === 'Both' ? '—' : r.plan === 'Annual' ? '12 (prepaid)' : (r.months_avg == null ? '—' : d3.format('.1f')(r.months_avg));
+      [r.plan, F.n(r.paid), F.usd0(r.charged_usd), r.refunded_usd ? '−' + F.usd0(r.refunded_usd) : '$0', F.usd0(r.kept_usd), F.usd0(r.per_payer_usd), months].forEach((t, i) => {
+        const td = document.createElement('td'); td.textContent = t; if (i === 5) td.style.fontWeight = '600'; tr.appendChild(td);
+      });
+      tb.appendChild(tr);
+    });
   });
 
   dash.draw('cmp-range', {
@@ -945,18 +1210,18 @@ dash.calc('daily_chart', {
     return JSON.parse(new TextDecoder().decode(plain));
   }
   function show(d) {
-    // Meta bills in CAD. Spend is shown in USD at one fixed rate per month: the Bank of Canada average CAD per USD of the month before.
-    const FX = Object.assign({'2026-10': 1.3962, '2026-11': 1.4135}, d.fx || {});
-    const fxMonths = Object.keys(FX).sort();
-    const toUsd = (date, cad) => { if (cad == null) return null; const m = String(date).slice(0, 7); let r = FX[fxMonths[0]]; for (const k of fxMonths) if (k <= m) r = FX[k]; return Math.round(Number(cad) / r * 100) / 100; };
-    const daily = d.daily.map(([date, s, installs, trials, paid, revenue_usd, spend_cad]) => ({date, source: d.sources[s], installs, trials, paid, revenue_usd, spend_usd: toUsd(date, spend_cad)}));
+    const daily = d.daily.map(([date, s, installs, trials, paid, revenue_usd, spend_cad]) => ({date, source: d.sources[s], installs, trials, paid, revenue_usd, spend_cad}));
     const paywall = d.paywall.map(([date, paywall_users, first_opens, paywall_new]) => ({date, paywall_users, first_opens, paywall_new}));
-    const ads = d.ads.rows.map(([date, a, installs, trials, paid, revenue_usd, spend_cad]) => { const [ad_id, ad, adset, campaign, ig, fb] = d.ads.list[a]; return {date, ad_id, ad, adset, campaign, ig, fb, installs, trials, paid, revenue_usd, spend_usd: toUsd(date, spend_cad)}; });
+    const ads = d.ads.rows.map(([date, a, installs, trials, paid, revenue_usd, spend_cad]) => { const [ad_id, ad, adset, campaign, ig, fb] = d.ads.list[a]; return {date, ad_id, ad, adset, campaign, ig, fb, installs, trials, paid, revenue_usd, spend_cad}; });
     document.getElementById('lf-lock').hidden = true;
     document.getElementById('lf-main').hidden = false;
     document.getElementById('lf-updated').textContent = 'Data updated ' + new Date(d.updated).toLocaleString(undefined, {dateStyle: 'medium', timeStyle: 'short'}) + '. Refreshes about every 6 hours.';
     const plans = (d.plans || []).map(([date, pl, paid, paid_cancels, trial_cancels]) => ({date, plan: ['Monthly', 'Annual'][pl], paid, paid_cancels, trial_cancels}));
-    dash.__load({daily, paywall, ads, plans});
+    const FX = Object.assign({'2026-10': 1.3962, '2026-11': 1.4135}, d.fx || {});
+    const fx = Object.keys(FX).sort().map((month) => ({month, cad_per_usd: FX[month]}));
+    const ST = ['renewing', 'off', 'ended', 'refunded'];
+    const subs = (d.subs || []).map(([id, pl, first_paid, payments, payments_kept, charged_usd, refunded_usd, st, off_date, days_to_off, next_due]) => ({id, plan: ['Monthly', 'Annual'][pl], first_paid, payments, payments_kept, charged_usd, refunded_usd, status: ST[st], off_date, days_to_off, next_due}));
+    dash.__load({daily, paywall, ads, plans, fx, subs});
   }
   async function tryPw(pw, remember) {
     try {
