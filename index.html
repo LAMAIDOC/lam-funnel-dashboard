@@ -244,7 +244,7 @@ body{margin:0;background:var(--color-bg);color:var(--color-fg);font-family:var(-
     <div class="lf-hist" data-source="cancel_timing" data-draw="ap-hist"></div>
 
     <h3 class="lf-sub">How many months monthly payers keep paying</h3>
-    <p class="lf-note">Grouped by the month they first paid. A month counts only once its billing date has passed.</p>
+    <p class="lf-note">Grouped by the month they first paid. A month counts once its billing date has passed (the day after, to give the App Store time to charge).</p>
     <div class="lf-tablewrap">
       <table class="lf-table" id="lf-cohort-table" data-source="monthly_cohorts" data-row-key="month">
         <thead><tr>
@@ -663,7 +663,7 @@ dash.calc('after_pay', {
     const today = window.lfToday();
     const one = (plan, rows) => {
       const sum = (k) => rows.reduce((a, r) => a + (Number(r[k]) || 0), 0);
-      const due = rows.filter((r) => r.status !== 'refunded' && window.lfAddMonths(r.first_paid, r.plan === 'Annual' ? 12 : 1) <= today);
+      const due = rows.filter((r) => r.status !== 'refunded' && window.lfAddMonths(r.first_paid, r.plan === 'Annual' ? 12 : 1) < today);
       const charged = sum('charged_usd'), refunded = sum('refunded_usd'), kept = charged - refunded;
       const months = rows.reduce((a, r) => a + (Number(r.payments_kept) || 0) * (r.plan === 'Annual' ? 12 : 1), 0);
       return {
@@ -724,7 +724,7 @@ dash.calc('monthly_cohorts', {
       const live = rows.filter((r) => r.status !== 'refunded');
       const step = (k) => {
         const dueDates = live.map((r) => window.lfAddMonths(r.first_paid, k - 1)).sort();
-        const due = live.filter((r) => window.lfAddMonths(r.first_paid, k - 1) <= today);
+        const due = live.filter((r) => window.lfAddMonths(r.first_paid, k - 1) < today);
         return {due: due.length, paid: due.filter((r) => r.payments >= k).length, next: dueDates.length ? [dueDates[0], dueDates[dueDates.length - 1]] : null};
       };
       const s2 = step(2), s3 = step(3), s6 = step(6);
