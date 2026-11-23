@@ -215,10 +215,11 @@ body{margin:0;background:var(--color-bg);color:var(--color-fg);font-family:var(-
 
   <section class="lf-card" id="lf-afterpay-card">
     <h2>After they pay: how long they stay and what they bring in</h2>
-    <p class="lf-note">People who first paid in the chosen dates, counted per person. “Turned off auto-renew” means they keep access until their paid period ends, then stop. Refunds are taken out of revenue. With few payers, read the counts, not just the percentages.</p>
+    <p class="lf-note">People who first paid in the chosen dates, counted per person. “Turned off auto-renew” means they keep access until their paid period ends, then stop. “Paid → cancelled” counts people who turned off auto-renew or were refunded. Refunds are taken out of revenue. With few payers, read the counts, not just the percentages.</p>
     <div class="lf-kpis lf-kpis-sm">
       <div class="lf-kpi"><div class="lf-label">Revenue after refunds (USD)</div><div class="lf-val" data-source="after_pay_kpis" data-field="kept_usd" data-row="0" data-draw="ap-kept">—</div><div class="lf-hint" data-draw="ap-kept-hint">—</div></div>
       <div class="lf-kpi"><div class="lf-label">Revenue per paying customer</div><div class="lf-val" data-source="after_pay_kpis" data-field="per_payer_usd" data-row="0" data-draw="ap-per">—</div><div class="lf-hint" data-draw="ap-per-hint">—</div></div>
+      <div class="lf-kpi"><div class="lf-label">Paid → cancelled</div><div class="lf-val" data-source="after_pay_kpis" data-field="cancelled" data-row="0" data-draw="ap-pc">—</div><div class="lf-hint" data-draw="ap-pc-hint">—</div></div>
       <div class="lf-kpi"><div class="lf-label">Monthly payers still renewing</div><div class="lf-val" data-source="after_pay_kpis" data-field="monthly_renewing" data-row="0" data-draw="ap-mr">—</div><div class="lf-hint" data-draw="ap-mr-hint">—</div></div>
       <div class="lf-kpi"><div class="lf-label">Annual payers still renewing</div><div class="lf-val" data-source="after_pay_kpis" data-field="annual_renewing" data-row="0" data-draw="ap-ar">—</div><div class="lf-hint" data-draw="ap-ar-hint">—</div></div>
       <div class="lf-kpi"><div class="lf-label">Typical time to cancel</div><div class="lf-val" data-source="after_pay_kpis" data-field="median_days_to_off" data-row="0" data-draw="ap-med">—</div><div class="lf-hint">Median days after first payment</div></div>
@@ -684,7 +685,7 @@ dash.calc('after_pay', {
 
 dash.calc('after_pay_kpis', {
   title: 'After they pay: headline numbers',
-  description: 'Revenue kept after refunds, kept per paying customer, monthly and annual payers still set to renew, and the median days from first payment to turning off auto-renew.',
+  description: 'Revenue kept after refunds, kept per paying customer, paid → cancelled (auto-renew off or refunded, all and by plan), monthly and annual payers still set to renew, and the median days from first payment to turning off auto-renew.',
   inputs: ['after_pay', 'subs_in_range'],
   fn: (ap, subs) => {
     const by = (p) => ap.find((r) => r.plan === p) || {};
@@ -695,6 +696,7 @@ dash.calc('after_pay_kpis', {
       kept_usd: b.kept_usd, charged_usd: b.charged_usd, refunded_usd: b.refunded_usd, payers: b.paid, per_payer_usd: b.per_payer_usd,
       monthly_renewing: m.renewing, monthly_paid: m.paid, annual_renewing: a.renewing, annual_paid: a.paid,
       median_days_to_off: med, cancellers: days.length,
+      cancelled: (b.off || 0) + (b.refunded || 0), monthly_cancelled: (m.off || 0) + (m.refunded || 0), annual_cancelled: (a.off || 0) + (a.refunded || 0),
     }];
   },
 });
@@ -963,6 +965,13 @@ dash.calc('daily_chart', {
   dash.draw('ap-kept-hint', (el) => { const k = row0('after_pay_kpis'); put(el, k ? F.usd0(k.charged_usd) + ' charged − ' + F.usd0(k.refunded_usd) + ' refunded' : null); });
   dash.draw('ap-per', (el) => { const k = row0('after_pay_kpis'); put(el, k ? F.usd0(k.per_payer_usd) : null); });
   dash.draw('ap-per-hint', (el) => { const k = row0('after_pay_kpis'); put(el, k ? F.n(k.payers) + (k.payers === 1 ? ' person' : ' people') + ' who paid in these dates' : null); });
+  dash.draw('ap-pc', (el) => { const k = row0('after_pay_kpis'); put(el, k && k.payers ? xofy(k.cancelled, k.payers) : null); });
+  dash.draw('ap-pc-hint', (el) => {
+    const k = row0('after_pay_kpis');
+    if (!k || !k.payers) { put(el, null); return; }
+    const part = (label, c, n) => n ? label + ' ' + F.pct0(c / n) : null;
+    put(el, [F.pct0(k.cancelled / k.payers), part('monthly', k.monthly_cancelled, k.monthly_paid), part('annual', k.annual_cancelled, k.annual_paid)].filter(Boolean).join(' · '));
+  });
   dash.draw('ap-mr', (el) => { const k = row0('after_pay_kpis'); put(el, k && k.monthly_paid ? xofy(k.monthly_renewing, k.monthly_paid) : null); });
   dash.draw('ap-mr-hint', (el) => { const k = row0('after_pay_kpis'); put(el, k && k.monthly_paid ? F.pct0(k.monthly_renewing / k.monthly_paid) : null); });
   dash.draw('ap-ar', (el) => { const k = row0('after_pay_kpis'); put(el, k && k.annual_paid ? xofy(k.annual_renewing, k.annual_paid) : null); });
