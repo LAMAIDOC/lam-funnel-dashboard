@@ -338,6 +338,7 @@ body{margin:0;background:var(--color-bg);color:var(--color-fg);font-family:var(-
       </table>
     </div>
     </div>
+    <p class="lf-note">Topic adds up every ad set about the same topic across all campaigns (for example all Head ad sets: static, video, influencer, US and Canada). The topic is the first part of the ad set name (Topic · Format · Country); older names like “HEAD -US” or “COUGH_SLIDE” are read the same way.</p>
   </section>
 
   <section class="lf-card" id="lf-daily-card">
@@ -502,8 +503,25 @@ dash.calc('funnel', {
   },
 });
 
+// Topic of an ad set: the part before the first " · " (naming: Topic · Format · Country).
+// Older names (e.g. "HEAD -US", "COUGH_SLIDE", "VIDEOS - US - LIA") are cleaned up with the rules below.
+window.lfTopic = (adset) => {
+  const raw = String(adset || '').trim();
+  if (raw.includes(' · ')) return raw.split(' · ')[0].trim();
+  if (raw.startsWith('(')) return raw;
+  let t = raw.toUpperCase()
+    .replace(/^VIDEOS\s*-\s*(US|CANADA)\s*-\s*/, '')
+    .replace(/\s*-\s*(US|CANADA)$/, '')
+    .replace(/_(SLIDE|VIDEO)(_\d+)?$/, '')
+    .replace(/\s+VIDS$/, '')
+    .trim();
+  const alias = {MILES: 'MILESTONES', MILESTONE: 'MILESTONES', MED: 'MEDS', LIA: 'LIA'};
+  t = alias[t] || t;
+  return t.charAt(0) + t.slice(1).toLowerCase();
+};
+
 dash.calc('by_ad', {
-  title: 'Meta ads by campaign, ad set or ad, in the chosen dates',
+  title: 'Meta ads by campaign, topic, ad set or ad, in the chosen dates',
   description: 'Adds up the daily per-ad rows in the date range at the chosen level, for the chosen campaign; sorted by spend.',
   inputs: ['ads_usd'],
   fn: (ads) => {
@@ -514,7 +532,7 @@ dash.calc('by_ad', {
     const level = p.ad_level || 'ad';
     const camp = p.ad_campaign || '';
     const keep = ads.filter((r) => r.date >= from && r.date <= to && (!camp || r.campaign === camp));
-    const keyOf = (r) => level === 'campaign' ? r.campaign : level === 'adset' ? r.campaign + ' | ' + r.adset : r.ad_id;
+    const keyOf = (r) => level === 'campaign' ? r.campaign : level === 'topic' ? window.lfTopic(r.adset) : level === 'adset' ? r.campaign + ' | ' + r.adset : r.ad_id;
     const groups = d3.group(keep, keyOf);
     const out = [];
     for (const [key, rows] of groups) {
@@ -525,8 +543,8 @@ dash.calc('by_ad', {
       if (!installs && !trials && !paid && !spend_usd) continue;
       out.push({
         key,
-        name: level === 'campaign' ? f.campaign : level === 'adset' ? f.adset : f.ad,
-        parent: level === 'campaign' ? '' : level === 'adset' ? f.campaign : f.adset + ' · ' + f.campaign,
+        name: level === 'campaign' ? f.campaign : level === 'topic' ? key : level === 'adset' ? f.adset : f.ad,
+        parent: level === 'campaign' ? '' : level === 'topic' ? (() => { const a = new Set(rows.map((r) => r.campaign + '|' + r.adset)).size, c = new Set(rows.map((r) => r.campaign)).size; return a + (a === 1 ? ' ad set' : ' ad sets') + ' in ' + c + (c === 1 ? ' campaign' : ' campaigns'); })() : level === 'adset' ? f.campaign : f.adset + ' · ' + f.campaign,
         ig: level === 'ad' ? (f.ig || '') : '',
         fb: level === 'ad' ? (f.fb || '') : '',
         installs, trials, paid,
@@ -895,7 +913,7 @@ dash.calc('daily_chart', {
   });
 
   dash.draw('ad-level', (sel) => {
-    const opts = [['campaign', 'Campaign'], ['adset', 'Ad set'], ['ad', 'Ad']];
+    const opts = [['campaign', 'Campaign'], ['topic', 'Topic (all ad sets with the same topic)'], ['adset', 'Ad set'], ['ad', 'Ad']];
     sel.replaceChildren(...opts.map(([v, t]) => new Option(t, v)));
     sel.value = dash.params().ad_level || 'ad';
     sel.onchange = () => dash.setParams({ad_level: sel.value});
