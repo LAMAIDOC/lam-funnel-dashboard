@@ -285,7 +285,7 @@ body{margin:0;background:var(--color-bg);color:var(--color-fg);font-family:var(-
 
   <section class="lf-card" id="lf-source-card">
     <h2>Funnel and cost by source</h2>
-    <p class="lf-note">Click a column title to sort, highest first; click again for lowest first. Paywall views can’t be split by source yet, because the app sends paywall events to Mixpanel only. Cost columns cover Meta and Google Ads, the ad spend connected. Google Ads downloads are Google’s own count of first opens; on iPhone Google can’t pass on who started a trial or paid, so its trials and paid customers show under Organic. Revenue by source is before refunds.</p>
+    <p class="lf-note">Click a column title to sort, highest first; click again for lowest first. Paywall views can’t be split by source yet, because the app sends paywall events to Mixpanel only. Cost columns cover Meta and Google Ads, the ad spend connected. Google Ads downloads are Google’s own count of first opens. Google’s trials and paid customers are Google’s own count, available from Nov 26, 2026 (*: its rates and costs per trial and paid use only those days); earlier ones show under Organic. Revenue by source is before refunds.</p>
     <div class="lf-tablewrap">
       <table class="lf-table" id="lf-source-table" data-source="by_source" data-row-key="source">
         <thead><tr>
@@ -356,7 +356,7 @@ body{margin:0;background:var(--color-bg);color:var(--color-fg);font-family:var(-
       <li>Paid means a first payment: a trial that converted or a direct purchase. Promo (free) accounts are left out. Total revenue at the top takes out refunds; revenue by source and by ad does not.</li>
       <li>“After they pay” follows each paid subscription through RevenueCat’s live events: renewals, auto-renew turned off or back on, refunds (a cancellation with negative revenue) and expiry. One payment made before tracking started (Oct 9) is not in it.</li>
       <li>Trial → paid compares people who paid in the period with people who started a trial in it. Trials take 7 days to convert, so recent trials haven’t had the chance yet.</li>
-      <li>Google Ads (running since Oct 29): spend comes from Google Ads, and downloads are Google’s own count of first opens, taken out of Organic so nothing is counted twice. Google counts days in Toronto time, so a single day can be off by one. AppsFlyer can trace almost none of Google’s downloads on iPhone, so Google’s trials and paying customers stay in Organic.</li>
+      <li>Google Ads (running since Oct 29): spend comes from Google Ads, and downloads are Google’s own count of first opens, taken out of Organic so nothing is counted twice. Google counts days in Toronto time, so a single day can be off by one. AppsFlyer can trace almost none of Google’s downloads on iPhone, so trials and paying customers come from Google’s own count of the trial and purchase events AppsFlyer forwards to it. That started Nov 26, 2026; before then they stay in Organic. Google’s counts are its own claims and tend to run a little high.</li>
       <li>“Organic / untracked” means the download came without a tracked ad or link: App Store search, our own social posts, influencers without a tracked link, word of mouth, and some team installs. It did not rise when Meta spend rose, so few Meta ad downloads are hiding in it.</li>
       <li>Everything is in USD. Meta and Google Ads bill in CAD, so each day’s spend is turned into USD at one fixed rate per month: the Bank of Canada average of the month before (see Exchange rates in Sources). Revenue is Apple’s gross in USD, before Apple’s cut.</li>
     </ul>
@@ -365,6 +365,7 @@ body{margin:0;background:var(--color-bg);color:var(--color-fg);font-family:var(-
 
 <script>
 window.lfSources = ['Meta ads', 'Organic', 'Apple Search Ads', 'Ambassadors (Everflow)', 'Google Ads'];
+window.lfGoogleFrom = '2026-11-26'; // first day Google Ads receives trial and purchase events
 window.lfLabel = (s) => s === 'Organic' ? 'Organic / untracked' : s;
 window.lfColor = (s) => dash.colors[Math.max(0, window.lfSources.indexOf(s)) % dash.colors.length];
 window.lfSort = {};
@@ -433,14 +434,21 @@ dash.calc('by_source', {
       const revenue_usd = paid ? Math.max(0, Math.round(sum(rows, 'revenue_usd') * 100) / 100) : 0;
       const spend = sum(rows, 'spend_usd');
       const spend_usd = spend > 0 ? Math.round(spend * 100) / 100 : null;
+      // Google only reports trials and paid from lfGoogleFrom on, so its rates use those days only.
+      const g = source === 'Google Ads';
+      const tRows = g ? rows.filter((r) => r.date >= window.lfGoogleFrom) : rows;
+      const tInstalls = sum(tRows, 'installs');
+      const tSpend = sum(tRows, 'spend_usd');
       return {
         source, installs, trials, paid, revenue_usd, spend_usd,
+        tracked: !g || to >= window.lfGoogleFrom,
+        partial: g && from < window.lfGoogleFrom && to >= window.lfGoogleFrom,
         install_share: allInstalls ? installs / allInstalls : null,
-        install_to_trial: installs ? trials / installs : null,
+        install_to_trial: tInstalls ? trials / tInstalls : null,
         trial_to_paid: trials ? paid / trials : null,
         cost_per_install_usd: spend_usd != null && installs ? spend_usd / installs : null,
-        cost_per_trial_usd: spend_usd != null && trials ? spend_usd / trials : null,
-        cost_per_paid_usd: spend_usd != null && paid ? spend_usd / paid : null,
+        cost_per_trial_usd: spend_usd != null && trials ? tSpend / trials : null,
+        cost_per_paid_usd: spend_usd != null && paid ? tSpend / paid : null,
       };
     });
   },
@@ -448,7 +456,7 @@ dash.calc('by_source', {
 
 dash.calc('kpis', {
   title: 'Totals in the chosen dates',
-  description: 'All sources added up. Ad spend is Meta plus Google Ads; the cost figures use Meta spend over Meta trials and paying customers, because Google trials and paid customers can’t be traced on iPhone.',
+  description: 'All sources added up. Ad spend is Meta plus Google Ads; the cost figures use Meta spend over Meta trials and paying customers, because Google only reports trials and paid customers from Nov 26, 2026.',
   inputs: ['by_source', 'subs'],
   fn: (by_source, subs) => {
     const s = (k) => by_source.reduce((a, r) => a + (Number(r[k]) || 0), 0);
@@ -871,11 +879,11 @@ dash.calc('daily_chart', {
       const sw = document.createElement('span'); sw.className = 'lf-swatch'; sw.style.background = window.lfColor(r.source);
       td.append(sw, document.createTextNode(window.lfLabel(r.source)));
       const paid = r.spend_usd != null;
-      const blind = r.source === 'Google Ads' && !r.trials && !r.paid;
+      const blind = !r.tracked;
       const nt = 'not tracked';
-      [F.n(r.installs), blind ? nt : F.n(r.trials), blind ? '—' : F.pct(r.install_to_trial), blind ? nt : F.n(r.paid), blind ? '—' : F.pct(r.trial_to_paid), blind ? '—' : F.usd(r.revenue_usd),
+      [F.n(r.installs), blind ? nt : F.n(r.trials), blind ? '—' : F.pct(r.install_to_trial), blind ? nt : F.n(r.paid), blind ? '—' : F.pct(r.trial_to_paid), blind || (r.source === 'Google Ads' && r.paid && !r.revenue_usd) ? '—' : F.usd(r.revenue_usd),
        paid ? F.usd(r.spend_usd) : 'not connected', paid ? F.usd(r.cost_per_install_usd) : '—', paid ? F.usd(r.cost_per_trial_usd) : '—', paid ? F.usd(r.cost_per_paid_usd) : '—']
-        .forEach((t) => { const c = cell(tr, t); if (t === nt) c.className = 'lf-dash'; });
+        .forEach((t, i) => { const c = cell(tr, t); if (t === nt) c.className = 'lf-dash'; if (r.partial && (i === 2 || i === 4)) { c.textContent += '*'; c.title = 'Google-reported, from ' + window.lfGoogleFrom + ' only'; } });
       tb.appendChild(tr);
     });
     if (k) {
