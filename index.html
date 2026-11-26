@@ -18,6 +18,7 @@ body{margin:0;background:var(--color-bg);color:var(--color-fg);font-family:var(-
 .lf-page{max-width:1200px;margin:0 auto;padding:24px 16px 48px}
 .dash-select{font:inherit;font-size:var(--cds-font-size-caption);padding:4px 8px;border:1px solid var(--color-border-line);border-radius:var(--cds-radius);background-color:var(--color-bg);color:var(--color-fg);max-width:100%}
 .lf-lock{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:16px}
+.lf-lock[hidden],.lf-page[hidden]{display:none}
 .lf-lockbox{width:100%;max-width:360px;background:var(--color-panel);border:1px solid var(--color-border-line);border-radius:var(--cds-radius);padding:24px;display:grid;gap:12px}
 .lf-lockbox h1{font-family:var(--font-anthropic-serif);font-weight:400;font-size:24px;margin:0}
 .lf-lockbox p{margin:0;color:var(--color-fg-muted);font-size:var(--cds-font-size-caption)}
@@ -36,6 +37,18 @@ body{margin:0;background:var(--color-bg);color:var(--color-fg);font-family:var(-
 .lf-btn[aria-pressed="true"] { background: var(--color-fg); color: var(--color-bg); border-color: var(--color-fg); }
 .lf-date { font: inherit; font-size: var(--cds-font-size-caption); padding: 3px 6px; border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); background: var(--color-bg); color: var(--color-fg); }
 .lf-dash { color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); }
+.lf-tabs { display: flex; gap: var(--cds-gap-lg); border-bottom: 1px solid var(--color-border-line); }
+.lf-tab { font: inherit; font-size: var(--cds-font-size-body); background: none; border: none; border-bottom: 2px solid transparent; padding: 6px 0 8px; color: var(--color-fg-muted); cursor: pointer; }
+.lf-tab[aria-selected="true"] { color: var(--color-fg); border-bottom-color: var(--color-fg); font-weight: var(--cds-font-weight-medium); }
+.lf-tabpane { display: flex; flex-direction: column; gap: var(--cds-gap-lg); min-width: 0; }
+.lf-tabpane > * { min-width: 0; max-width: 100%; }
+.lf-tabpane[hidden] { display: none; }
+.lf-chips { display: flex; flex-wrap: wrap; gap: var(--cds-gap-xs) var(--cds-gap-sm); align-items: center; margin-bottom: var(--cds-gap-sm); }
+.lf-chips .lf-dash { min-width: 92px; }
+.lf-btn .lf-ct { opacity: .65; margin-left: 4px; }
+.lf-table tr.lf-err-row td { background: color-mix(in srgb, var(--color-bad) 6%, transparent); }
+#lf-ai-table th, #lf-ai-table td { text-align: left; }
+.lf-table td.lf-bad { color: var(--color-bad); font-weight: var(--cds-font-weight-medium); }
 .lf-card { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-lg); min-width: 0; }
 .lf-card h2 { font-size: var(--cds-font-size-heading); font-weight: var(--cds-font-weight-medium); margin: 0 0 var(--cds-gap-xs); }
 .lf-card .lf-note { color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); margin: 0 0 var(--cds-gap-md); }
@@ -141,8 +154,14 @@ body{margin:0;background:var(--color-bg);color:var(--color-fg);font-family:var(-
     <h1>Paid Conversions</h1>
   </header>
 
+  <nav class="lf-tabs" id="lf-tabs" role="tablist" aria-label="Dashboard sections">
+    <button type="button" class="lf-tab" role="tab" data-tab="paid" aria-selected="true">Paid Conversions</button>
+    <button type="button" class="lf-tab" role="tab" data-tab="ai" aria-selected="false">AI checks</button>
+  </nav>
+
   <div class="lf-controls" id="lf-range" data-draw="range"></div>
 
+  <div class="lf-tabpane" id="lf-tab-paid">
   <section class="lf-kpis" id="lf-kpis">
     <div class="lf-card lf-kpi" id="kpi-downloads"><div class="lf-label">Downloads</div><div class="lf-val" data-source="kpis" data-field="installs" data-row="0" data-draw="k-installs">—</div><div class="lf-hint">All sources</div></div>
     <div class="lf-card lf-kpi" id="kpi-trials"><div class="lf-label">Free trials started</div><div class="lf-val" data-source="kpis" data-field="trials" data-row="0" data-draw="k-trials">—</div><div class="lf-hint"><span data-source="kpis" data-field="install_to_trial" data-row="0" data-draw="k-i2t">—</span> of downloads</div></div>
@@ -362,6 +381,71 @@ body{margin:0;background:var(--color-bg);color:var(--color-fg);font-family:var(-
       <li>Everything is in USD. Meta and Google Ads bill in CAD, so each day’s spend is turned into USD at one fixed rate per month: the Bank of Canada average of the month before (see Exchange rates in Sources). Revenue is Apple’s gross in USD, before Apple’s cut.</li>
     </ul>
   </details>
+  </div>
+
+  <div class="lf-tabpane" id="lf-tab-ai" hidden>
+  <section class="lf-kpis" id="lf-ai-kpis">
+    <div class="lf-card lf-kpi"><div class="lf-label">Checks opened</div><div class="lf-val" data-draw="ai-k-opened">—</div><div class="lf-hint">Every check screen opened</div></div>
+    <div class="lf-card lf-kpi"><div class="lf-label">Started recording</div><div class="lf-val" data-draw="ai-k-started">—</div><div class="lf-hint" data-draw="ai-k-started-h">—</div></div>
+    <div class="lf-card lf-kpi"><div class="lf-label">Successful result</div><div class="lf-val" data-draw="ai-k-ok">—</div><div class="lf-hint" data-draw="ai-k-ok-h">—</div></div>
+    <div class="lf-card lf-kpi"><div class="lf-label">Ended in an error</div><div class="lf-val" data-draw="ai-k-err">—</div><div class="lf-hint" data-draw="ai-k-err-h">—</div></div>
+    <div class="lf-card lf-kpi"><div class="lf-label">Median time to result</div><div class="lf-val" data-draw="ai-k-med">—</div><div class="lf-hint">Successful checks, from opening</div></div>
+    <div class="lf-card lf-kpi"><div class="lf-label">Retakes</div><div class="lf-val" data-draw="ai-k-retakes">—</div><div class="lf-hint">Parent redid the scan</div></div>
+  </section>
+
+  <section class="lf-card" id="lf-ai-filter-card">
+    <h2>Filter</h2>
+    <p class="lf-note">Tap to filter; tap more than one to combine. Everything on this tab follows the filters and the dates above.</p>
+    <div class="lf-chips" data-draw="ai-type-filter"></div>
+    <div class="lf-chips" data-draw="ai-outcome-filter"></div>
+  </section>
+
+  <div class="lf-two">
+    <section class="lf-card">
+      <h2>By check</h2>
+      <div class="lf-tablewrap">
+      <table class="lf-table">
+        <thead><tr><th>Check</th><th>Opened</th><th>Started</th><th>Successful</th><th>Success rate</th><th>Errors</th><th>Error rate</th><th>Median time</th><th>Retakes</th></tr></thead>
+        <tbody data-draw="ai-by-type"></tbody>
+      </table>
+      </div>
+      <p class="lf-note lf-gap">Rates are out of checks where recording started.</p>
+    </section>
+    <section class="lf-card">
+      <h2>How checks ended</h2>
+      <div class="lf-tablewrap">
+      <table class="lf-table">
+        <thead><tr><th>How it ended</th><th>Checks</th><th>Share</th></tr></thead>
+        <tbody data-draw="ai-outcomes"></tbody>
+      </table>
+      </div>
+    </section>
+  </div>
+
+  <section class="lf-card" id="lf-ai-list-card">
+    <h2>Every check, newest first</h2>
+    <p class="lf-note" data-draw="ai-list-note">—</p>
+    <div class="lf-tablewrap">
+    <table class="lf-table" id="lf-ai-table">
+      <thead data-draw="ai-list-head"></thead>
+      <tbody data-draw="ai-list"></tbody>
+    </table>
+    </div>
+    <div class="lf-controls lf-gap" data-draw="ai-more"></div>
+  </section>
+
+  <details class="lf-foot" id="lf-ai-notes">
+    <summary>How AI checks are counted</summary>
+    <ul>
+      <li>Source: Mixpanel session replays of the live app (test builds left out) that contain an AI check, from Oct 27, 2026. About 19 in 20 live check events have a replay.</li>
+      <li>One check starts when its screen opens and ends at the result, or when the parent leaves it. A parent who redoes a check after an error counts as a new check.</li>
+      <li>AI error: the AI returned no usable result; the label is the code the AI service sent (for example not_detected or p_bad). App error: the app itself logged an error (for example an upload that timed out) and no result came back.</li>
+      <li>“Left while recording”: recording started but the parent left before submitting. “Submitted, no result”: the scan was sent but no result came back. “Opened, didn’t start”: the check screen was opened only. If a replay recording stops in the middle of a check, that check also counts as left.</li>
+      <li>Times are when the check started, shown in your time zone; dates in the filter are UTC days like the rest of the dashboard.</li>
+      <li>“Watch” opens the Mixpanel replay 3 seconds before the check starts and needs a Mixpanel login. Replay links are only on the private Claude dashboard, never on the public page.</li>
+    </ul>
+  </details>
+  </div>
 </div>
 
 <script>
@@ -505,6 +589,80 @@ dash.calc('funnel', {
 
 // Topic of an ad set: the part before the first " · " (naming: Topic · Format · Country).
 // Older names (e.g. "HEAD -US", "COUGH_SLIDE", "VIDEOS - US - LIA") are cleaned up with the rules below.
+window.lfAiOutcome = (o) => {
+  if (o === 'successful') return {label: 'Successful', cls: 'lf-status-on', rank: 0, err: false};
+  if (o.startsWith('ai:')) return {label: 'AI error: ' + o.slice(3), cls: 'lf-status-below', rank: 1, err: true};
+  if (o.startsWith('app:')) { const c = o.slice(4); const nice = {request_timeout: 'timeout', network_error: 'network', connection_error: 'connection', rendering_error: 'screen failed', auth_error: 'login'}[c] || c.replace(/_/g, ' '); return {label: 'App error: ' + nice, cls: 'lf-status-below', rank: 2, err: true}; }
+  if (o === 'no_result') return {label: 'Submitted, no result', cls: 'lf-status-below', rank: 3, err: false};
+  if (o === 'left_recording') return {label: 'Left while recording', cls: 'lf-status-close', rank: 4, err: false};
+  if (o === 'cancelled') return {label: 'Cancelled', cls: 'lf-status-close', rank: 5, err: false};
+  return {label: 'Opened, didn’t start', cls: 'lf-status-flat', rank: 6, err: false};
+};
+window.lfAiTypes = ['head', 'vitals', 'throat', 'skin', 'cough', 'lung'];
+window.lfAiList = (v) => (v ? String(v).split(',').filter(Boolean) : []);
+window.lfMmss = (s) => s == null ? '—' : Math.floor(s / 60) + ':' + String(Math.round(s % 60)).padStart(2, '0');
+
+dash.calc('ai_base', {
+  title: 'AI checks in the chosen dates and check types',
+  description: 'AI-check rows in the date range (UTC day the check started), limited to the chosen check types; before the "How it ended" filter.',
+  inputs: ['aichecks'],
+  fn: (rows) => {
+    const p = dash.params();
+    const types = window.lfAiList(p.ai_types);
+    return rows.filter((r) => (!p.from || r.date >= p.from) && (!p.to || r.date <= p.to) && (!types.length || types.includes(r.type)));
+  },
+});
+
+dash.calc('ai_rows', {
+  title: 'AI checks after all filters',
+  description: 'ai_base limited to the chosen "How it ended" outcomes, newest first.',
+  inputs: ['ai_base'],
+  fn: (rows) => {
+    const outs = window.lfAiList(dash.params().ai_out);
+    return rows.filter((r) => !outs.length || outs.includes(r.outcome)).slice().sort((a, b) => b.ts - a.ts);
+  },
+});
+
+dash.calc('ai_kpis', {
+  title: 'AI check headline numbers',
+  description: 'Opened, started (recording began), successful, errors (AI or app error), median seconds to a successful result, retakes.',
+  inputs: ['ai_rows'],
+  fn: (rows) => {
+    const started = rows.filter((r) => r.outcome !== 'not_started');
+    const ok = rows.filter((r) => r.outcome === 'successful');
+    const err = rows.filter((r) => window.lfAiOutcome(r.outcome).err);
+    return [{opened: rows.length, started: started.length, ok: ok.length, errors: err.length,
+      ok_rate: started.length ? ok.length / started.length : null, err_rate: started.length ? err.length / started.length : null,
+      median_secs: ok.length ? d3.median(ok, (r) => r.secs) : null, retakes: d3.sum(rows, (r) => r.retakes)}];
+  },
+});
+
+dash.calc('ai_by_type', {
+  title: 'AI checks by check type',
+  description: 'Per check type: opened, started, successful, errors, rates out of started, median seconds to success, retakes.',
+  inputs: ['ai_rows'],
+  fn: (rows) => window.lfAiTypes.map((t) => {
+    const a = rows.filter((r) => r.type === t);
+    const st = a.filter((r) => r.outcome !== 'not_started');
+    const ok = a.filter((r) => r.outcome === 'successful');
+    const er = a.filter((r) => window.lfAiOutcome(r.outcome).err);
+    return {type: t, opened: a.length, started: st.length, ok: ok.length, errors: er.length,
+      ok_rate: st.length ? ok.length / st.length : null, err_rate: st.length ? er.length / st.length : null,
+      median_secs: ok.length ? d3.median(ok, (r) => r.secs) : null, retakes: d3.sum(a, (r) => r.retakes)};
+  }).filter((r) => r.opened),
+});
+
+dash.calc('ai_outcomes', {
+  title: 'How AI checks ended',
+  description: 'Count of checks per outcome, in display order.',
+  inputs: ['ai_rows'],
+  fn: (rows) => {
+    const m = d3.rollup(rows, (v) => v.length, (r) => r.outcome);
+    return Array.from(m, ([outcome, n]) => ({outcome, n, share: rows.length ? n / rows.length : null}))
+      .sort((a, b) => window.lfAiOutcome(a.outcome).rank - window.lfAiOutcome(b.outcome).rank || b.n - a.n);
+  },
+});
+
 window.lfTopic = (adset) => {
   const raw = String(adset || '').trim();
   if (raw.includes(' · ')) return raw.split(' · ')[0].trim();
@@ -956,6 +1114,124 @@ dash.calc('daily_chart', {
     });
   });
 
+  // ---- AI checks tab ----
+  const aiK = () => row0('ai_kpis');
+  const pctOf = (r) => r == null ? '' : F.pct(r);
+  dash.draw('ai-k-opened', (el) => { const k = aiK(); put(el, k ? F.n(k.opened) : null); });
+  dash.draw('ai-k-started', (el) => { const k = aiK(); put(el, k ? F.n(k.started) : null); });
+  dash.draw('ai-k-started-h', (el) => { const k = aiK(); put(el, k && k.opened ? F.pct(k.started / k.opened) + ' of opened' : '—'); });
+  dash.draw('ai-k-ok', (el) => { const k = aiK(); put(el, k ? F.n(k.ok) : null); });
+  dash.draw('ai-k-ok-h', (el) => { const k = aiK(); put(el, k && k.ok_rate != null ? pctOf(k.ok_rate) + ' of started' : '—'); });
+  dash.draw('ai-k-err', (el) => { const k = aiK(); put(el, k ? F.n(k.errors) : null); el.style.color = k && k.errors ? 'var(--color-bad)' : ''; });
+  dash.draw('ai-k-err-h', (el) => { const k = aiK(); put(el, k && k.err_rate != null ? pctOf(k.err_rate) + ' of started' : '—'); });
+  dash.draw('ai-k-med', (el) => { const k = aiK(); put(el, k ? window.lfMmss(k.median_secs) : null); });
+  dash.draw('ai-k-retakes', (el) => { const k = aiK(); put(el, k ? F.n(k.retakes) : null); });
+
+  const chipRow = (el, label, key, items) => {
+    const cur = window.lfAiList(dash.params()[key]);
+    const lab = document.createElement('span'); lab.className = 'lf-dash'; lab.textContent = label;
+    const mk = (text, count, on, click) => {
+      const b = document.createElement('button'); b.type = 'button'; b.className = 'lf-btn';
+      b.setAttribute('aria-pressed', on ? 'true' : 'false'); b.textContent = text;
+      if (count != null) { const c = document.createElement('span'); c.className = 'lf-ct'; c.textContent = count; b.appendChild(c); }
+      b.addEventListener('click', click); return b;
+    };
+    const all = mk('All', null, !cur.length, () => dash.setParams({[key]: null}));
+    const btns = items.map(([v, text, count]) => mk(text, count, cur.includes(v), () => {
+      const next = cur.includes(v) ? cur.filter((x) => x !== v) : cur.concat(v);
+      dash.setParams({[key]: next.length ? next.join(',') : null});
+    }));
+    el.replaceChildren(lab, all, ...btns);
+  };
+  dash.draw('ai-type-filter', (el) => {
+    const d = dash.data('aichecks');
+    const present = d.status === 'ok' ? new Set(d.data.map((r) => r.type)) : new Set();
+    chipRow(el, 'Check', 'ai_types', window.lfAiTypes.filter((t) => present.has(t)).map((t) => [t, t.charAt(0).toUpperCase() + t.slice(1), null]));
+  });
+  dash.draw('ai-outcome-filter', (el) => {
+    const d = dash.data('ai_base');
+    const rows = d.status === 'ok' ? d.data : [];
+    const m = d3.rollup(rows, (v) => v.length, (r) => r.outcome);
+    const cur = window.lfAiList(dash.params().ai_out);
+    cur.forEach((o) => { if (!m.has(o)) m.set(o, 0); });
+    const items = Array.from(m, ([o, n]) => [o, window.lfAiOutcome(o).label, n])
+      .sort((a, b) => window.lfAiOutcome(a[0]).rank - window.lfAiOutcome(b[0]).rank || b[2] - a[2]);
+    chipRow(el, 'How it ended', 'ai_out', items);
+  });
+
+  dash.draw('ai-by-type', (tb) => {
+    const d = dash.data('ai_by_type');
+    tb.replaceChildren();
+    if (d.status !== 'ok' || !d.data) return;
+    if (!d.data.length) { const tr = document.createElement('tr'); const td = document.createElement('td'); td.colSpan = 9; td.className = 'lf-empty'; td.textContent = 'No AI checks match.'; tr.appendChild(td); tb.appendChild(tr); return; }
+    d.data.forEach((r) => {
+      const tr = document.createElement('tr');
+      [r.type.charAt(0).toUpperCase() + r.type.slice(1), F.n(r.opened), F.n(r.started), F.n(r.ok), r.ok_rate == null ? '—' : F.pct(r.ok_rate), F.n(r.errors), r.err_rate == null ? '—' : F.pct(r.err_rate), window.lfMmss(r.median_secs), F.n(r.retakes)]
+        .forEach((t, i) => { const td = document.createElement('td'); td.textContent = t; if ((i === 5 || i === 6) && r.errors) td.className = 'lf-bad'; tr.appendChild(td); });
+      tb.appendChild(tr);
+    });
+  });
+
+  const pill = (o) => { const x = window.lfAiOutcome(o); const s = document.createElement('span'); s.className = 'lf-status ' + x.cls; s.textContent = x.label; return s; };
+  dash.draw('ai-outcomes', (tb) => {
+    const d = dash.data('ai_outcomes');
+    tb.replaceChildren();
+    if (d.status !== 'ok' || !d.data) return;
+    d.data.forEach((r) => {
+      const tr = document.createElement('tr');
+      const td0 = document.createElement('td'); td0.appendChild(pill(r.outcome)); tr.appendChild(td0);
+      [F.n(r.n), F.pct(r.share)].forEach((t) => { const td = document.createElement('td'); td.textContent = t; tr.appendChild(td); });
+      tb.appendChild(tr);
+    });
+  });
+
+  window.lfAiLimit = 100;
+  const hasLinks = () => { const d = dash.data('aichecks'); return d.status === 'ok' && d.data.some((r) => r.url); };
+  dash.draw('ai-list-note', (el) => {
+    const d = dash.data('ai_rows');
+    const n = d.status === 'ok' ? d.data.length : 0;
+    el.textContent = F.n(n) + (n === 1 ? ' check' : ' checks') + ' match. ' + (hasLinks() ? '“Watch” opens the Mixpanel replay 3 seconds before the check starts (Mixpanel login needed).' : 'Replay links are only on the private Claude dashboard.');
+  });
+  dash.draw('ai-list-head', (el) => {
+    const tr = document.createElement('tr');
+    ['When', 'Check', 'Started from', 'How it ended', 'Time spent', 'Retakes'].concat(hasLinks() ? ['Replay'] : []).forEach((t) => { const th = document.createElement('th'); th.textContent = t; tr.appendChild(th); });
+    el.replaceChildren(tr);
+  });
+  dash.draw('ai-list', (tb) => {
+    const d = dash.data('ai_rows');
+    tb.replaceChildren();
+    if (d.status !== 'ok' || !d.data) return;
+    const links = hasLinks();
+    if (!d.data.length) { const tr = document.createElement('tr'); const td = document.createElement('td'); td.colSpan = 7; td.className = 'lf-empty'; td.textContent = 'No AI checks match these filters.'; tr.appendChild(td); tb.appendChild(tr); return; }
+    const fmtWhen = (ts) => new Date(ts * 1000).toLocaleString(undefined, {month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit'});
+    d.data.slice(0, window.lfAiLimit).forEach((r) => {
+      const tr = document.createElement('tr'); tr.dataset.key = r.id;
+      if (window.lfAiOutcome(r.outcome).err) tr.className = 'lf-err-row';
+      const c = (t) => { const td = document.createElement('td'); td.textContent = t; tr.appendChild(td); return td; };
+      c(fmtWhen(r.ts)); c(r.type.charAt(0).toUpperCase() + r.type.slice(1)); c(r.origin || '—');
+      const tdo = c(''); tdo.style.textAlign = 'left'; tdo.appendChild(pill(r.outcome));
+      c(window.lfMmss(r.secs)); c(r.retakes ? String(r.retakes) : '');
+      if (links) {
+        const td = c('');
+        if (r.url && /^https:\/\/mixpanel\.com\//.test(r.url)) {
+          const a = document.createElement('a'); a.href = r.url; a.target = '_blank'; a.rel = 'noopener noreferrer'; a.className = 'lf-adlink';
+          a.textContent = '▶ Watch from ' + window.lfMmss(r.offset); td.appendChild(a);
+        } else td.textContent = '—';
+      }
+      tb.appendChild(tr);
+    });
+  });
+  dash.draw('ai-more', (el) => {
+    const d = dash.data('ai_rows');
+    const n = d.status === 'ok' ? d.data.length : 0;
+    el.replaceChildren();
+    if (n <= window.lfAiLimit) return;
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'lf-btn';
+    b.textContent = 'Show all ' + F.n(n);
+    b.addEventListener('click', () => { window.lfAiLimit = 1e9; dash.draw('ai-list'); dash.draw('ai-more'); });
+    el.appendChild(b);
+  });
+
   dash.draw('target-rows', (tb) => {
     const d = dash.data('targets');
     tb.replaceChildren();
@@ -1226,6 +1502,20 @@ dash.calc('daily_chart', {
   document.querySelectorAll('#lf-ads-hide').forEach((b) => b.addEventListener('click', () => setHidden(true)));
   document.querySelectorAll('#lf-ads-show').forEach((b) => b.addEventListener('click', () => setHidden(false)));
 })();
+(() => {
+  const KEY = 'lam-funnel-tab';
+  const set = (t) => {
+    document.querySelectorAll('#lf-tabs .lf-tab').forEach((b) => b.setAttribute('aria-selected', b.dataset.tab === t ? 'true' : 'false'));
+    document.querySelectorAll('#lf-tab-paid').forEach((p) => { p.hidden = t !== 'paid'; });
+    document.querySelectorAll('#lf-tab-ai').forEach((p) => { p.hidden = t !== 'ai'; });
+    try { localStorage.setItem(KEY, t); } catch (e) {}
+    window.dispatchEvent(new Event('resize'));
+  };
+  document.querySelectorAll('#lf-tabs .lf-tab').forEach((b) => b.addEventListener('click', () => set(b.dataset.tab)));
+  let t = 'paid';
+  try { t = localStorage.getItem(KEY) === 'ai' ? 'ai' : 'paid'; } catch (e) {}
+  set(t);
+})();
 </script>
 <p class="lf-updated" id="lf-updated">Loading…</p>
 </main>
@@ -1263,7 +1553,9 @@ dash.calc('daily_chart', {
     const fx = Object.keys(FX).sort().map((month) => ({month, cad_per_usd: FX[month]}));
     const ST = ['renewing', 'off', 'ended', 'refunded'];
     const subs = (d.subs || []).map(([id, pl, first_paid, payments, payments_kept, charged_usd, refunded_usd, st, off_date, days_to_off, next_due]) => ({id, plan: ['Monthly', 'Annual'][pl], first_paid, payments, payments_kept, charged_usd, refunded_usd, status: ST[st], off_date, days_to_off, next_due}));
-    dash.__load({daily, paywall, ads, plans, fx, subs});
+    const AI = d.ai || {types: [], origins: [], outcomes: [], rows: []};
+    const aichecks = AI.rows.map(([date, ts, t, o, oc, secs, retakes], i) => ({id: 'c' + i, date, ts, type: AI.types[t], origin: AI.origins[o], outcome: AI.outcomes[oc], secs, retakes, offset: 0, url: ''}));
+    dash.__load({daily, paywall, ads, plans, fx, subs, aichecks});
   }
   async function tryPw(pw, remember) {
     try {
