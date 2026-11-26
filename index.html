@@ -442,7 +442,7 @@ body{margin:0;background:var(--color-bg);color:var(--color-fg);font-family:var(-
       <li>AI error: the AI returned no usable result; the label is the code the AI service sent (for example not_detected or p_bad). App error: the app itself logged an error (for example an upload that timed out) and no result came back.</li>
       <li>“Left while recording”: recording started but the parent left before submitting. “Submitted, no result”: the scan was sent but no result came back. “Opened, didn’t start”: the check screen was opened only. If a replay recording stops in the middle of a check, that check also counts as left.</li>
       <li>Times are when the check started, shown in your time zone; dates in the filter are UTC days like the rest of the dashboard.</li>
-      <li>“Watch” opens the Mixpanel replay 3 seconds before the check starts and needs a Mixpanel login. Replay links are only on the private Claude dashboard, never on the public page.</li>
+      <li>“Watch” opens the Mixpanel replay 3 seconds before the check starts. It only opens for someone logged in to our Mixpanel account.</li>
     </ul>
   </details>
   </div>
@@ -1554,7 +1554,7 @@ dash.calc('daily_chart', {
     const ST = ['renewing', 'off', 'ended', 'refunded'];
     const subs = (d.subs || []).map(([id, pl, first_paid, payments, payments_kept, charged_usd, refunded_usd, st, off_date, days_to_off, next_due]) => ({id, plan: ['Monthly', 'Annual'][pl], first_paid, payments, payments_kept, charged_usd, refunded_usd, status: ST[st], off_date, days_to_off, next_due}));
     const AI = d.ai || {types: [], origins: [], outcomes: [], rows: []};
-    const aichecks = AI.rows.map(([date, ts, t, o, oc, secs, retakes], i) => ({id: 'c' + i, date, ts, type: AI.types[t], origin: AI.origins[o], outcome: AI.outcomes[oc], secs, retakes, offset: 0, url: ''}));
+    const aichecks = AI.rows.map(([date, ts, t, o, oc, secs, retakes, url, offset], i) => ({id: 'c' + i, date, ts, type: AI.types[t], origin: AI.origins[o], outcome: AI.outcomes[oc], secs, retakes, offset: offset || 0, url: url || ''}));
     dash.__load({daily, paywall, ads, plans, fx, subs, aichecks});
   }
   async function tryPw(pw, remember) {
