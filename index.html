@@ -168,6 +168,7 @@ body{margin:0;background:var(--color-bg);color:var(--color-fg);font-family:var(-
     <div class="lf-card lf-kpi" id="kpi-paid"><div class="lf-label">Paying customers</div><div class="lf-val" data-source="kpis" data-field="paid" data-row="0" data-draw="k-paid">—</div><div class="lf-hint"><span data-source="kpis" data-field="download_to_paid" data-row="0" data-draw="k-d2p">—</span> of downloads</div></div>
     <div class="lf-card lf-kpi" id="kpi-revenue"><div class="lf-label">Total revenue (USD)</div><div class="lf-val" data-source="kpis" data-field="revenue_usd" data-row="0" data-draw="k-rev">—</div><div class="lf-hint">After refunds, before Apple’s cut</div></div>
     <div class="lf-card lf-kpi" id="kpi-spend"><div class="lf-label">Ad spend (USD)</div><div class="lf-val" data-source="kpis" data-field="spend_usd" data-row="0" data-draw="k-spend">—</div><div class="lf-hint" data-draw="k-spend-hint">Meta and Google Ads</div></div>
+    <div class="lf-card lf-kpi" id="kpi-cpi"><div class="lf-label">Cost per download (USD)</div><div class="lf-val" data-source="kpis" data-field="cost_per_install_usd" data-row="0" data-draw="k-cpi">—</div><div class="lf-hint" data-draw="k-cpi-hint">Ad spend ÷ downloads from ads</div></div>
     <div class="lf-card lf-kpi" id="kpi-cpt"><div class="lf-label">Meta cost per trial (USD)</div><div class="lf-val" data-source="kpis" data-field="cost_per_trial_usd" data-row="0" data-draw="k-cpt">—</div><div class="lf-hint">Spend ÷ Meta trials</div></div>
     <div class="lf-card lf-kpi" id="kpi-cpp"><div class="lf-label">Meta cost per paid (USD)</div><div class="lf-val" data-source="kpis" data-field="cost_per_paid_usd" data-row="0" data-draw="k-cpp">—</div><div class="lf-hint">Spend ÷ Meta paying customers</div></div>
   </section>
@@ -560,6 +561,9 @@ dash.calc('kpis', {
       install_to_trial: installs ? trials / installs : null,
       download_to_paid: installs ? paid / installs : null,
       meta_spend_usd: meta_spend, google_spend_usd: google_spend,
+      cost_per_install_usd: spend_usd != null && ((meta.installs || 0) + (google.installs || 0)) ? spend_usd / ((meta.installs || 0) + (google.installs || 0)) : null,
+      meta_cpi_usd: meta_spend != null && meta.installs ? meta_spend / meta.installs : null,
+      google_cpi_usd: google_spend != null && google.installs ? google_spend / google.installs : null,
       cost_per_trial_usd: meta_spend != null && meta.trials ? meta_spend / meta.trials : null,
       cost_per_paid_usd: meta_spend != null && meta.paid ? meta_spend / meta.paid : null,
     }];
@@ -952,6 +956,8 @@ dash.calc('daily_chart', {
   dash.draw('k-rev', (el) => { const k = row0('kpis'); put(el, k ? '$' + d3.format(',.0f')(k.revenue_usd) : null); });
   dash.draw('k-spend', (el) => { const k = row0('kpis'); put(el, k ? F.usd0(k.spend_usd) : null); });
   dash.draw('k-spend-hint', (el) => { const k = row0('kpis'); put(el, k ? 'Meta ' + F.usd0(k.meta_spend_usd || 0) + ' · Google ' + F.usd0(k.google_spend_usd || 0) : null); });
+  dash.draw('k-cpi', (el) => { const k = row0('kpis'); put(el, k ? F.usd(k.cost_per_install_usd) : null); });
+  dash.draw('k-cpi-hint', (el) => { const k = row0('kpis'); put(el, k ? 'Meta ' + F.usd(k.meta_cpi_usd) + ' · Google ' + F.usd(k.google_cpi_usd) : null); });
   dash.draw('k-cpt', (el) => { const k = row0('kpis'); put(el, k ? F.usd(k.cost_per_trial_usd) : null); });
   dash.draw('k-cpp', (el) => { const k = row0('kpis'); put(el, k ? F.usd(k.cost_per_paid_usd) : null); });
 
